@@ -7,7 +7,7 @@
   # The test configuration for the Google4R::Checkout::Frontend class.
   FRONTEND_CONFIGURATION = 
     { 
-      :merchant_id => '104508181545346', 
-      :merchant_key => 'a4ptY78bBjyjv_GMopD4TQ',
+      :merchant_id => '', 
+      :merchant_key => '',
       :use_sandbox => true
     }
