@@ -1,13 +1,12 @@
-  # Uncomment the following line if you are using Google Checkout in Great Britain
-  # and adjust it if you want to test google4r-checkout against any other (future)
-  # Google Checkout service.
-  
-  # Money.default_currency = 'GBP'
-  
-  # The test configuration for the Google4R::Checkout::Frontend class.
-  FRONTEND_CONFIGURATION = 
-    { 
-      :merchant_id => '', 
-      :merchant_key => '',
-      :use_sandbox => true
-    }
+# The test configuration for the Google4R::Checkout::Frontend class.
+
+Money.default_currency = 'GBP'
+
+   FRONTEND_CONFIGURATION =
+  {
+      :merchant_id => '344031641964896',
+      :merchant_key => 'z1F88L1KsENu2MJvMrv0RQ',
+      :use_sandbox => true,
+      :currency_code => 'GBP'
+
+}

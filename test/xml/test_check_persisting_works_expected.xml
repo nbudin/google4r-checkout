@@ -207,6 +207,7 @@
           </shipping-restrictions>
         </flat-rate-shipping>
       </shipping-methods>
+      <analytics-data>abcd1234defgh5678ijklmn</analytics-data>
     </merchant-checkout-flow-support>
   </checkout-flow-support>
 </checkout-shopping-cart>

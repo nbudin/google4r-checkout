@@ -219,6 +219,13 @@ module Google4R #:nodoc:
       
       # A Google Checkout merchant ID that identifies the eCommerce provider.
       attr_accessor :platform_id
+
+      # Setting this allows Google Analytics to track purchases that use Checkout
+      # The value should be as set by the analytics javascript in the hidden form
+      # element names "analyticsdata" on the page with the checkout button.
+      # If left unset then the element will not be generated.
+      # see: http://code.google.com/apis/checkout/developer/checkout_analytics_integration.html
+      attr_accessor :analytics_data
       
       # Generates the XML for this CheckoutCommand.
       def to_xml

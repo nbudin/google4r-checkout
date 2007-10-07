@@ -82,6 +82,11 @@ class Google4R::Checkout::CheckoutCommandTest < Test::Unit::TestCase
     
     @command.request_buyer_phone_number = true
     assert_equal true, @command.request_buyer_phone_number
+
+    assert_nil @command.analytics_data
+    @command.analytics_data = 'abcd1234defgh5678ijklmn'
+    assert_equal 'abcd1234defgh5678ijklmn', @command.analytics_data
+    
   end
 
   def test_create_shipping_method_works_correctly_with_block

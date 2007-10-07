@@ -102,6 +102,7 @@ class Google4R::Checkout::CheckoutCommandXmlGeneratorTest < Test::Unit::TestCase
     @command.accept_merchant_coupons = true
     @command.accept_gift_certificates = true
     @command.platform_id = '1234567890'
+    @command.analytics_data = 'abcd1234defgh5678ijklmn'
     
     @generator = CheckoutCommandXmlGenerator.new(@command)
     

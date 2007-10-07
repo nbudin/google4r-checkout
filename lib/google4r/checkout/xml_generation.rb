@@ -171,6 +171,13 @@ module Google4R #:nodoc:
         command.shipping_methods.each do |shipping_method|
           self.process_shipping_method(shippings_element, shipping_method)
         end
+
+        # <analytics-data>
+        unless command.analytics_data.nil? then
+          analytics_element = flow_element.add_element('analytics-data')
+          analytics_element.text = command.analytics_data
+        end
+
       end
       
       # adds the tax-tables to the parent xml element
