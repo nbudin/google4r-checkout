@@ -59,8 +59,9 @@ class Google4R::Checkout::CommandTest < Test::Unit::TestCase
     assert_raises(OpenSSL::SSL::SSLError) { @command.send_to_google_checkout }
   end
   
-  def test_to_xml_raises_not_implemented_error
-    assert_raises(NotImplementedError) { Command.new(Frontend.new(FRONTEND_CONFIGURATION)).to_xml }
+  def test_instantiate_abstract_class
+    assert_raises(RuntimeError) { Command.new(Frontend.new(FRONTEND_CONFIGURATION)) }
+    assert_raises(RuntimeError) { ItemsCommand.new(Frontend.new(FRONTEND_CONFIGURATION)) }
   end
   
   def test_unknown_xml_response_in_body_raises_runtime_error
