@@ -40,17 +40,15 @@ module Google4R #:nodoc:
     class Command
       # The URL to use for requests to the sandboxed API. The merchant id is to be
       # put in via String#%.
-      #--
-      # TODO: Move this into a class variable (e.g. via cattr) so it is adaptable.
-      #++
-      SANDBOX_URL = "https://sandbox.google.com/checkout/cws/v2/Merchant/%s/request"
+      SANDBOX_URL_PREFIX = 'https://sandbox.google.com/checkout/'
       
       # The URL to use for real requests to the Google Checkout API. The merchant id
       # is to be put in via String#%.
-      #--
-      # TODO: Move this into a class variable (e.g. via cattr) so it is adaptable.
-      #++
-      PRODUCTION_URL = "https://checkout.google.com/cws/v2/Merchant/%s/request"
+      PRODUCTION_URL_PREFIX = 'https://checkout.google.com/'
+      
+      CHECKOUT_API_URL = 'api/checkout/v2/merchantCheckout/Merchant/%s'
+      
+      ORDER_PROCESSING_API_URL = 'api/checkout/v2/request/Merchant/%s'
       
       # The Frontent class that was used to create this CheckoutCommand and whose
       # configuration will be used.
@@ -64,6 +62,9 @@ module Google4R #:nodoc:
 
       # Initialize the frontend attribute with the value of the frontend parameter.
       def initialize(frontend)
+        if self.instance_of?(Command) || self.instance_of?(ItemsCommand)
+          raise 'Cannot instantiate abstract class ' + self.class.to_s
+        end
         @frontend = frontend
       end
 
@@ -81,10 +82,17 @@ module Google4R #:nodoc:
         # Create HTTP(S) POST command and set up Basic Authentication.
         url_str = 
           if frontend.configuration[:use_sandbox] then
-            SANDBOX_URL % frontend.configuration[:merchant_id]
+            SANDBOX_URL_PREFIX
           else
-            PRODUCTION_URL % frontend.configuration[:merchant_id]
+            PRODUCTION_URL_PREFIX
           end
+        url_str += 
+          if self.class == CheckoutCommand then
+            CHECKOUT_API_URL
+          else
+            ORDER_PROCESSING_API_URL
+          end
+        url_str = url_str % frontend.configuration[:merchant_id]
         url = URI.parse(url_str)
         
         request = Net::HTTP::Post.new(url.path)
@@ -138,12 +146,8 @@ module Google4R #:nodoc:
       
       # Class method to return the command's XML representation.
       def to_xml
-        if self.class == Command then
-          raise NotImplementedError, "Command#to_xml has to be used in a subclass."
-        else
-          generator_class = Google4R::Command.get_const("#{self.class}XmlGenerator")
-          return generator_class.new(self).generate
-        end
+        generator_class = Google4R::Command.get_const("#{self.class}XmlGenerator")
+        return generator_class.new(self).generate
       end
       
       protected
@@ -295,11 +299,6 @@ module Google4R #:nodoc:
       # The amount to charge, optional, Money
       attr_accessor :amount
 
-      # frontend, required
-      def initialize(frontend)
-        super(frontend)
-      end
-
       # Generates the XML for this ChargeOrderCommand
       def to_xml
         ChargeOrderCommandXmlGenerator.new(self).generate
@@ -317,10 +316,6 @@ module Google4R #:nodoc:
       # A comment related to the refunded order, String of maximum 140 characters, optional
       attr_accessor :comment
 
-      def initialize(frontend)
-        super(frontend)
-      end
-
       def to_xml
         RefundOrderCommandXmlGenerator.new(self).generate
       end
@@ -334,10 +329,6 @@ module Google4R #:nodoc:
       # A comment related to the cancelled order, String of maximum 140 characters, optional
       attr_accessor :comment
 
-      def initialize(frontend)
-        super(frontend)
-      end
-
       def to_xml
         CancelOrderCommandXmlGenerator.new(self).generate
       end
@@ -347,10 +338,6 @@ module Google4R #:nodoc:
     # a customer's credit card for the uncharged balance of an order to verify that
     # funds for the order are available
     class AuthorizeOrderCommand < Command
-      def initialize(frontend)
-        super(frontend)
-      end
-
       def to_xml
         AuthorizeOrderCommandXmlGenerator.new(self).generate
       end
@@ -359,10 +346,6 @@ module Google4R #:nodoc:
     # The ProcessOrderCommand instructs Google Checkout to to update
     # an order's fulfillment state from NEW to PROCESSING
     class ProcessOrderCommand < Command
-      def initialize(frontend)
-        super(frontend)
-      end
-
       def to_xml
         ProcessOrderCommandXmlGenerator.new(self).generate
       end
@@ -373,10 +356,6 @@ module Google4R #:nodoc:
     class AddMerchantOrderNumberCommand < Command
       # The merchant-assigned order number associated with an order
       attr_accessor :merchant_order_number
-      
-      def initialize(frontend)
-        super(frontend)
-      end
 
       def to_xml
         AddMerchantOrderNumberCommandXmlGenerator.new(self).generate
@@ -394,10 +373,6 @@ module Google4R #:nodoc:
       
       # The shipper's tracking number that is associated with an order
       attr_accessor :tracking_number
-      
-      def initialize(frontend)
-        super(frontend)
-      end
 
       def to_xml
         DeliverOrderCommandXmlGenerator.new(self).generate
@@ -412,10 +387,6 @@ module Google4R #:nodoc:
       
       # The shipper's tracking number that is associated with an order
       attr_accessor :tracking_number
-      
-      def initialize(frontend)
-        super(frontend)
-      end
 
       def to_xml
         AddTrackingDataCommandXmlGenerator.new(self).generate
@@ -427,12 +398,8 @@ module Google4R #:nodoc:
       # The message to the customer
       attr_accessor :message
       
-      # if google checkout should email buyer to ssay order is dispatched
+      # if google checkout should email buyer to say order is dispatched
       attr_accessor :send_email
-      
-      def initialize(frontend)
-        super(frontend)
-      end
 
       def to_xml
         SendBuyerMessageCommandXmlGenerator.new(self).generate
@@ -441,10 +408,6 @@ module Google4R #:nodoc:
     
     # The ArchiveOrderCommand instructs Google Checkout to remove an order from your Merchant Center Inbox.
     class ArchiveOrderCommand < Command
-      def initialize(frontend)
-        super(frontend)
-      end
-
       def to_xml
         ArchiveOrderCommandXmlGenerator.new(self).generate
       end
@@ -452,12 +415,76 @@ module Google4R #:nodoc:
       
     # The UnarchiveOrderCommand instructs Google Checkout to return a previously archived order to your Merchant Center Inbox.
     class UnarchiveOrderCommand < Command
-      def initialize(frontend)
-        super(frontend)
-      end
-
       def to_xml
         UnarchiveOrderCommandXmlGenerator.new(self).generate
+      end
+    end
+    
+    #
+    # XML API Commands for Line-item Shipping
+    #
+
+    # Abstract class for Line-item shipping commands
+    class ItemsCommand < Command
+      # An array of ItemInfo objects that you are marking as backordered,
+      # cancelled, returned or resetting shipping information
+      attr_accessor :item_info_arr
+      
+      # if google checkout should email buyer to say order is dispatched
+      attr_accessor :send_email
+      
+      def initialize(frontend)
+        super
+        @item_info_arr = []
+        @send_email = false
+      end
+    end
+
+    # The <ship-items> command specifies shipping information for one or 
+    # more items in an order.
+    class ShipItemsCommand < ItemsCommand
+      def to_xml
+        ShipItemsCommandXmlGenerator.new(self).generate
+      end
+    end
+    
+    # The <backorder-items> command lets you specify that one or more
+    # specific items in an order are out of stock.
+    class BackorderItemsCommand < ItemsCommand
+      def to_xml
+        BackorderItemsCommandXmlGenerator.new(self).generate
+      end
+    end
+    
+    # The <cancel-items> command lets you specify that one or more
+    # specific items in an order have been cancelled, meaning they 
+    # will not be delivered to the customer.
+    class CancelItemsCommand < ItemsCommand
+      
+      # The reason that you are canceling one or more line items
+      attr_accessor :reason
+      
+      # An optional comment related to one or more canceled line items
+      attr_accessor :comment
+      
+      def to_xml
+        CancelItemsCommandXmlGenerator.new(self).generate
+      end
+    end
+    
+    # The <return-items> command lets you specify that your customer
+    # returned one or more specific items in an order.
+    class ReturnItemsCommand < ItemsCommand
+      def to_xml
+        ReturnItemsCommandXmlGenerator.new(self).generate
+      end
+    end
+    
+    # The <reset-items-shipping-information> command allows you to reset
+    # the shipping status for specific items in an order to "Not yet shipped".
+    class ResetItemsShippingInformationCommand < ItemsCommand
+      def to_xml
+        ResetItemsShippingInformationCommandXmlGenerator.new(self).generate
       end
     end
   end

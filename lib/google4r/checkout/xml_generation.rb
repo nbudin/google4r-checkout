@@ -35,6 +35,10 @@ module Google4R #:nodoc:
   module Checkout #:nodoc:
     
     class XmlGenerator
+      def initialize()
+        raise 'Cannot instantiate an abstract class.'
+      end
+      
       # Base method to generate the XML for a particular command
       def generate
         @document = REXML::Document.new
@@ -52,27 +56,35 @@ module Google4R #:nodoc:
       # The list of command tag names
       COMMAND_TO_TAG =
       {
-        ChargeOrderCommand => "charge-order",
-        RefundOrderCommand => "refund-order",
-        CancelOrderCommand => "cancel-order",
-        AuthorizeOrderCommand => "authorize-order",
-        ProcessOrderCommand => "process-order",
-        AddMerchantOrderNumberCommand => "add-merchant-order-number",
-        DeliverOrderCommand  => "deliver-order",
-        AddTrackingDataCommand => "add-tracking-data",
-        SendBuyerMessageCommand => "send-buyer-message",
-        ArchiveOrderCommand => "archive-order",
-        UnarchiveOrderCommand => "unarchive-order"
+        ChargeOrderCommand => 'charge-order',
+        RefundOrderCommand => 'refund-order',
+        CancelOrderCommand => 'cancel-order',
+        AuthorizeOrderCommand => 'authorize-order',
+        ProcessOrderCommand => 'process-order',
+        AddMerchantOrderNumberCommand => 'add-merchant-order-number',
+        DeliverOrderCommand  => 'deliver-order',
+        AddTrackingDataCommand => 'add-tracking-data',
+        SendBuyerMessageCommand => 'send-buyer-message',
+        ArchiveOrderCommand => 'archive-order',
+        UnarchiveOrderCommand => 'unarchive-order',
+        ShipItemsCommand => 'ship-items',
+        BackorderItemsCommand => 'backorder-items',
+        CancelItemsCommand => 'cancel-items',
+        ReturnItemsCommand => 'return-items',
+        ResetItemsShippingInformationCommand => 'reset-items-shipping-information'
       }
       
       def initialize(command)
-        super()
-        @command = command
+        if COMMAND_TO_TAG.has_key?(command.class)
+          @command = command
+        else
+          raise 'Cannot instantiate an abstract class.'
+        end
       end
       
       # Base method to generate the XML for a particular command
       def generate
-        super()
+        super
         self.process_command(@command)
         io = StringIO.new
         @document.write(io, 0) # TODO: Maybe replace 0 by -1 so no spaces are inserted?
@@ -91,7 +103,7 @@ module Google4R #:nodoc:
         root = @document.add_element(tag_name)
         root.add_attribute('google-order-number', command.google_order_number)
         root.add_attribute('xmlns', 'http://checkout.google.com/schema/2')
-        return root;
+        return root
       end
     end
     
@@ -110,6 +122,10 @@ module Google4R #:nodoc:
     # TODO: Refactor the big, monolitic generator into smaller, easier testable ones. One for each major part of the resulting XML document. This will also reduce the overhead in generating other types of XML documents.
     #++
     class CheckoutCommandXmlGenerator < CommandXmlGenerator
+      
+      def initialize(command)
+        @command = command
+      end
       
       protected
       
@@ -465,7 +481,7 @@ module Google4R #:nodoc:
         
         if command.comment then
           root.add_element('comment').text = command.comment
-        end        
+        end
       end
 
     end
@@ -635,6 +651,76 @@ module Google4R #:nodoc:
         calculated_amount.add_attribute("currency", merchant_code_result.calculated_amount.currency)
         element.add_element("message").text = merchant_code_result.message
       end
+    end
+    
+    # Line-item shipping commands
+    class ItemsCommandXmlGenerator < CommandXmlGenerator
+      protected
+      
+      def process_command(command)
+        root = super
+        process_item_info_arr(root, command.item_info_arr)
+        process_send_email(root, command.send_email)
+        return root
+      end
+      
+      def process_item_info_arr(parent, item_info_arr)
+        element = parent.add_element('item-ids')
+        item_info_arr.each do |item_info|
+          item_id = element.add_element('item-id')
+          item_id.add_element('merchant-item-id').text = 
+              item_info.merchant_item_id
+        end
+      end
+      
+      def process_send_email(parent, send_email)
+        parent.add_element('send-email').text = send_email.to_s
+      end
+    end
+    
+    class ShipItemsCommandXmlGenerator < ItemsCommandXmlGenerator
+      protected
+
+      def process_item_info_arr(parent, item_info_arr)
+        e1 = parent.add_element('item-shipping-information-list')
+        item_info_arr.each do |item_info|
+          e2 = e1.add_element('item-shipping-information')
+          item_id = e2.add_element('item-id')
+          item_id.add_element('merchant-item-id').text = 
+              item_info.merchant_item_id
+          if !item_info.tracking_data_arr.nil?
+            e3 = e2.add_element('tracking-data-list')
+            item_info.tracking_data_arr.each do |tracking_data|
+              e4 = e3.add_element('tracking-data')
+              e4.add_element('carrier').text = tracking_data.carrier
+              e4.add_element('tracking-number').text = 
+                  tracking_data.tracking_number
+            end
+          end
+        end
+      end
+    end
+    
+    class BackorderItemsCommandXmlGenerator < ItemsCommandXmlGenerator
+    end
+    
+    class CancelItemsCommandXmlGenerator < ItemsCommandXmlGenerator
+      protected
+      
+      def process_command(command)
+        root = super
+        root.add_element('reason').text = command.reason
+        
+        if command.comment then
+          root.add_element('comment').text = command.comment
+        end
+      end
+    end
+    
+    class ReturnItemsCommandXmlGenerator < ItemsCommandXmlGenerator
+    end
+    
+    class ResetItemsShippingInformationCommandXmlGenerator < ItemsCommandXmlGenerator
     end
   end
 end

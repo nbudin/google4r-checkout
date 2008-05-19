@@ -677,5 +677,40 @@ module Google4R #:nodoc:
         return result
       end
     end
+    
+    # ItemInfo instances are used in Line-item shipping commands
+    class ItemInfo
+      # The merchant item id (String)
+      attr_reader :merchant_item_id
+      
+      # An array of tracking data for this item
+      attr_reader :tracking_data_arr
+      
+      def initialize(merchant_item_id)
+        @merchant_item_id = merchant_item_id
+        @tracking_data_arr = Array.new
+      end
+      
+      def create_tracking_data(carrier, tracking_number)
+        tracking_data = TrackingData.new(carrier, tracking_number)
+        @tracking_data_arr << tracking_data    
+        return tracking_data
+      end
+    end
+    
+    # TrackingData instances are used in Line-item shipping commands
+    class TrackingData
+      # The name of the company responsible for shipping the item. Valid values
+      # for this tag are DHL, FedEx, UPS, USPS and Other.
+      attr_reader :carrier
+      
+      # The shipper's tracking number that is associated with an order
+      attr_reader :tracking_number
+      
+      def initialize(carrier, tracking_number)
+        @carrier = carrier.to_s
+        @tracking_number = tracking_number.to_s
+      end
+    end
   end
 end

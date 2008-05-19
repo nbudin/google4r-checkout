@@ -169,6 +169,36 @@ module Google4R #:nodoc:
       def create_unarchive_order_command
         return UnarchiveOrderCommand.new(self)
       end
+      
+      # Factory method to create a new ShipItemsCommand object. Use this method to create
+      # your ShipItemsCommand instances.
+      def create_ship_items_command
+        return ShipItemsCommand.new(self)
+      end
+      
+      # Factory method to create a new BackorderItemsCommand object. Use this method to create
+      # your BackorderItemsCommand instances.
+      def create_backorder_items_command
+        return BackorderItemsCommand.new(self)
+      end
+      
+      # Factory method to create a new ReturnItemsCommand object. Use this method to create
+      # your ReturnItemsCommand instances.
+      def create_return_items_command
+        return ReturnItemsCommand.new(self)
+      end
+      
+      # Factory method to create a new CancelItemsCommand object. Use this method to create
+      # your CancelItemsCommand instances.
+      def create_cancel_items_command
+        return CancelItemsCommand.new(self)
+      end
+      
+      # Factory method to create a new ResetItemsShippingInformationCommand object. Use this method to create
+      # your ResetItemsShippingInformationCommand instances.
+      def create_reset_items_shipping_information_command
+        return ResetItemsShippingInformationCommand.new(self)
+      end
     end
   end
 end
