@@ -55,7 +55,11 @@ class TestTaxTableFactory
 end
 
 class Test::Unit::TestCase
-  # Perform assertion on strings. The advantage of this method over the normal assert_equals
+  def assert_nospace_equal(expected, actual)
+    return assert_equal(expected.gsub(/\s/, ''), actual.gsub(/\s/, ''))
+  end
+  
+  # Perform assertion on strings. The advantage of this method over the normal assert_equal
   # method is that it displays the exact mismatch location and is aware of multi line strings.
   # 
   # This comes at a performance cost since we have to compare character wise.

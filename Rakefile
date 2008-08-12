@@ -64,7 +64,7 @@ end
 #
 # Rubygem creation.
 #
-version = "1.0.2"
+version = "1.0.3"
 spec = Gem::Specification.new do |spec|
   spec.platform = Gem::Platform::RUBY
 
@@ -72,7 +72,7 @@ spec = Gem::Specification.new do |spec|
   spec.summary = "Ruby library to access the Google Checkout service and implement notification handlers."
   spec.description = spec.summary
   spec.version = version
-  spec.author = "Manuel Holtgrewe"
+  spec.author = "Tony Chan"
 
   spec.test_files = FileList['test/**/*_test.rb'] 
   spec.files      = RUBY_FILES + EXTRA_FILES 

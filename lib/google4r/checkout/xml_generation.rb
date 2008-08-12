@@ -270,6 +270,12 @@ module Google4R #:nodoc:
           item_element.add_element('merchant-item-id').text = item.id 
         end
         
+        if not item.weight.nil? then
+          item_element.add_element('item-weight', 
+              { 'unit' => item.weight.unit,
+                'value' => item.weight.value })
+        end
+        
         if not item.private_data.nil? then
           self.process_hash(item_element.add_element('merchant-private-item-data'), item.private_data)
         end
@@ -279,6 +285,33 @@ module Google4R #:nodoc:
         if not item.tax_table.nil? then
           item_element.add_element('tax-table-selector').text = item.tax_table.name
         end
+        
+        if not item.digital_content.nil? then
+          self.process_digital_content(item_element, item.digital_content)
+        end
+      end
+      
+      # Adds a <digital-content> element to a parent (<item>) element
+      def process_digital_content(parent, digital_content)
+        digital_content_element = parent.add_element('digital-content')
+
+        if not digital_content.description.nil? then
+          digital_content_element.add_element('description').text = digital_content.description.to_s
+        end
+
+        if digital_content.email_delivery? then
+          digital_content_element.add_element('email-delivery').text = digital_content.email_delivery.to_s
+        end
+
+        if not digital_content.key.nil? then
+          digital_content_element.add_element('key').text = digital_content.key.to_s
+        end
+
+        if not digital_content.url.nil? then
+          digital_content_element.add_element('url').text = digital_content.url.to_s
+        end
+
+        digital_content_element.add_element('display-disposition').text = digital_content.display_disposition.to_s
       end
       
       # Adds an item for the given shipping method.
@@ -289,6 +322,8 @@ module Google4R #:nodoc:
           process_shipping('flat-rate-shipping', parent, shipping_method)
         elsif shipping_method.kind_of? MerchantCalculatedShipping then
           process_shipping('merchant-calculated-shipping', parent, shipping_method)
+        elsif shipping_method.kind_of? CarrierCalculatedShipping then
+          process_carrier_calculated_shipping('carrier-calculated-shipping', parent, shipping_method)
         else
           raise "Unknown ShippingMethod type of #{shipping_method.inspect}!"
         end
@@ -348,6 +383,67 @@ module Google4R #:nodoc:
         element = parent.add_element('pickup')
         element.add_attribute('name', shipping.name)
         element.add_element('price', { 'currency' => shipping.price.currency }).text = shipping.price.to_s
+      end
+      
+      def process_carrier_calculated_shipping(shipping_type, parent, shipping)
+        element = parent.add_element(shipping_type)
+        options_element = element.add_element('carrier-calculated-shipping-options')
+        packages_element = element.add_element('shipping-packages')
+        shipping.carrier_calculated_shipping_options.each do | option |
+          process_carrier_calculated_shipping_option(options_element, option)
+        end
+        shipping.shipping_packages.each do | package |
+          process_shipping_package(packages_element, package)
+        end
+      end
+      
+      def process_carrier_calculated_shipping_option(parent, option)
+        element = parent.add_element('carrier-calculated-shipping-option')
+        element.add_element('price', { 'currency' => option.price.currency }).text = option.price.to_s
+        element.add_element('shipping-company').text = option.shipping_company
+        element.add_element('shipping-type').text = option.shipping_type
+        if not option.carrier_pickup.nil?
+          element.add_element('carrier-pickup').text = option.carrier_pickup
+        end
+        if not option.additional_fixed_charge.nil?
+          element.add_element('additional-fixed-charge', 
+              { 'currency' => option.additional_fixed_charge.currency }).text = 
+              option.additional_fixed_charge.to_s
+        end
+        if not option.additional_variable_charge_percent.nil?
+          element.add_element('additional-variable-charge-percent').text = 
+              option.additional_variable_charge_percent.to_s
+        end
+      end
+      
+      def process_shipping_package(parent, package)
+        element = parent.add_element('shipping-package')
+        ship_from = package.ship_from
+        ship_from_element = element.add_element('ship-from')
+        ship_from_element.add_attribute('id', ship_from.address_id)
+        ship_from_element.add_element('city').text = ship_from.city
+        ship_from_element.add_element('region').text = ship_from.region
+        ship_from_element.add_element('country-code').text = ship_from.country_code
+        ship_from_element.add_element('postal-code').text = ship_from.postal_code
+        if not package.delivery_address_category.nil?
+          element.add_element('delivery-address-category').text = 
+              package.delivery_address_category
+        end
+        if not package.height.nil?
+          height_element = element.add_element('height')
+          height_element.add_attribute('unit', package.height.unit)
+          height_element.add_attribute('value', package.height.value)
+        end
+        if not package.length.nil?
+          length_element = element.add_element('length')
+          length_element.add_attribute('unit', package.length.unit)
+          length_element.add_attribute('value', package.length.value)
+        end
+        if not package.width.nil?
+          width_element = element.add_element('width')
+          width_element.add_attribute('unit', package.width.unit)
+          width_element.add_attribute('value', package.width.value)
+        end
       end
       
       # Adds an appropriate tag for the given Area subclass instance to the parent Element.
@@ -596,7 +692,7 @@ module Google4R #:nodoc:
       end
       
       def generate()
-        super()
+        super
         process_results(@merchant_calculation_results.merchant_calculation_results)
         io = StringIO.new
         @document.write(io, 0) # TODO: Maybe replace 0 by -1 so no spaces are inserted?
@@ -652,7 +748,30 @@ module Google4R #:nodoc:
         element.add_element("message").text = merchant_code_result.message
       end
     end
-    
+
+    class NotificationAcknowledgementXmlGenerator < XmlGenerator
+      
+      def initialize(notification_acknowledgement)
+        @notification_acknowledgement = notification_acknowledgement
+      end
+
+      def generate
+        super
+        self.process_notification_acknowledgement(@notification_acknowledgement) 
+        io = StringIO.new
+        @document.write(io, -1)
+        return io.string
+      end
+
+      def process_notification_acknowledgement(notification_acknowledgement)
+        root = @document.add_element('notification-acknowledgment')
+        root.add_attribute('xmlns', 'http://checkout.google.com/schema/2')
+        if not notification_acknowledgement.serial_number.nil?
+          root.add_attribute('serial-number', notification_acknowledgement.serial_number)
+        end
+      end
+    end
+
     # Line-item shipping commands
     class ItemsCommandXmlGenerator < CommandXmlGenerator
       protected

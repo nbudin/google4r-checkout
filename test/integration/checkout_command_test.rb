@@ -49,6 +49,20 @@ class Google4R::Checkout::CheckoutCommandIntegrationTest < Test::Unit::TestCase
     assert_kind_of CheckoutRedirectResponse, result
   end
   
+  def test_sending_to_google_works_with_merchant_calculated_shipping
+    setup_command(@command, MerchantCalculatedShipping)
+    result = @command.send_to_google_checkout
+    assert_kind_of CheckoutRedirectResponse, result
+  end
+  
+  def test_sending_to_google_works_with_carrier_calculated_shipping
+    setup_command(@command, CarrierCalculatedShipping)
+    result = @command.send_to_google_checkout
+    puts @command.to_xml
+    puts result
+    assert_kind_of CheckoutRedirectResponse, result
+  end
+  
   def test_using_invalid_credentials_raise_google_checkout_error
     invalid_patches = [ [ :merchant_id, 'invalid' ], [ :merchant_key, 'invalid' ] ]
     
@@ -77,9 +91,11 @@ class Google4R::Checkout::CheckoutCommandIntegrationTest < Test::Unit::TestCase
   
   protected
   
-    # Sets up the given CheckoutCommand so it contains some
-    # shipping methods and its cart contains some items.
-    def setup_command(command)
+  # Sets up the given CheckoutCommand so it contains some
+  # shipping methods and its cart contains some items.
+  def setup_command(command, shipping_type=FlatRateShipping)
+    
+    if shipping_type == FlatRateShipping
       # Add shipping methods.
       command.create_shipping_method(FlatRateShipping) do |shipping|
         shipping.name = 'UPS Ground Shipping'
@@ -88,16 +104,59 @@ class Google4R::Checkout::CheckoutCommandIntegrationTest < Test::Unit::TestCase
           area.area = UsCountryArea::ALL
         end
       end
+    end
+    
+    if shipping_type == MerchantCalculatedShipping
+      command.merchant_calculations_url = 'http://www.example.com'
       
-      # Add items to the cart.
-      1.upto(5) do |i|
-        command.shopping_cart.create_item do |item|
-          item.name = "Test Item #{i}"
-          item.description = "This is a test item (#{i})"
-          item.unit_price = Money.new(350)
-          item.quantity = i * 3
-          item.id = "test-#{i}-123456789"
+      command.create_shipping_method(MerchantCalculatedShipping) do |shipping|
+        shipping.name = 'International Shipping'
+        shipping.price = Money.new(2000)
+        shipping.create_address_filters_allowed_area(PostalArea) do |area|
+          area.country_code = 'US'
+          area.postal_code_pattern = '12*'
         end
       end
     end
+    
+    if shipping_type == CarrierCalculatedShipping
+      command.create_shipping_method(CarrierCalculatedShipping) do |shipping|
+        shipping.create_carrier_calculated_shipping_option do | option |
+          option.shipping_company = 
+              CarrierCalculatedShipping::CarrierCalculatedShippingOption::FEDEX
+          option.price = Money.new(3000)
+          option.shipping_type = 'Priority Overnight'
+          option.carrier_pickup = 'REGULAR_PICKUP'
+          option.additional_fixed_charge = Money.new(500)
+          option.additional_variable_charge_percent = 15.5
+        end
+        shipping.create_shipping_package do | package |
+          ship_from = AnonymousAddress.new
+          ship_from.address_id = 'ABC'
+          ship_from.city = 'Ann Arbor'
+          ship_from.region = 'MI'
+          ship_from.country_code = 'US'
+          ship_from.postal_code = '48104'
+          package.ship_from = ship_from
+          package.delivery_address_category = 
+              CarrierCalculatedShipping::ShippingPackage::COMMERCIAL
+          package.height = Dimension.new(1)
+          package.length = Dimension.new(2)
+          package.width = Dimension.new(3)
+        end
+      end
+    end
+    
+    # Add items to the cart.
+    1.upto(5) do |i|
+      command.shopping_cart.create_item do |item|
+        item.name = "Test Item #{i}"
+        item.description = "This is a test item (#{i})"
+        item.unit_price = Money.new(350)
+        item.quantity = i * 3
+        item.id = "test-#{i}-123456789"
+        item.weight = Weight.new(2.2)
+      end
+    end
+  end
 end

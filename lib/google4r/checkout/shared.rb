@@ -202,6 +202,17 @@ module Google4R #:nodoc:
         @unit_price = money
       end
       
+      # The weigth of the cart item (Weight, required when carrier calculated
+      # shipping is used)
+      attr_reader :weight
+      
+      # Sets the weight of this item
+      def weight=(weight)
+        raise "Invalid object type for weight" unless weight.kind_of? Weight
+        @weight = weight
+      end
+      
+      
       # Number of units that this item represents (integer, required).
       attr_accessor :quantity
       
@@ -234,7 +245,27 @@ module Google4R #:nodoc:
         
         @tax_table = table
       end
-     
+      
+      # DigitalContent information for this item. Optional.
+      attr_reader :digital_content
+      
+      def create_digital_content(digital_content=nil, &block)
+        
+        if @digital_content.nil?
+          if digital_content.nil?
+            @digital_content = DigitalContent.new
+          else
+            @digital_content = digital_content
+          end
+        end
+        
+        if block_given?
+          yield @digital_content
+        end
+        
+        return @digital_content
+      end
+      
       # Create a new Item in the given Cart. You should not instantize this class directly
       # but use Cart#create_item instead.
       def initialize(shopping_cart)
@@ -249,6 +280,11 @@ module Google4R #:nodoc:
         result.description = element.elements['item-description'].text
         result.quantity = element.elements['quantity'].text.to_i
         result.id = element.elements['merchant-item-id'].text rescue nil
+        
+        weight_element = element.elements['item-weight']
+        if not weight_element.nil?
+          result.weight = Weight.create_from_element(weight_element)
+        end
 
         data_element = element.elements['merchant-private-item-data']
         if not data_element.nil? then
@@ -265,7 +301,69 @@ module Google4R #:nodoc:
         unit_price_currency = element.elements['unit-price'].attributes['currency']
         result.unit_price = Money.new(unit_price, unit_price_currency)
         
+        digital_content_element = element.elements['digital-content']
+        if not digital_content_element.nil?
+          result.create_digital_content(DigitalContent.create_from_element(digital_content_element))
+        end
+        
         return result
+      end
+
+      # A DigitalContent item represents the information relating to online delivery of digital items
+      #
+      # You should never initialize it directly but use Item#digital_content instead
+      #
+      # See http://code.google.com/apis/checkout/developer/Google_Checkout_Digital_Delivery.html
+      # for information on Google Checkout's idea of digital content.
+      # 
+      #   item.digital_content do |dc|
+      #     dc.optimistic!
+      #     dc.description = %{Here's some information on how to get your content}
+      #   end
+      class DigitalContent
+        
+        # Constants for display-disposition
+        OPTIMISTIC = 'OPTIMISTIC'
+        PESSIMISTIC = 'PESSIMISTIC'
+
+        # A description of how the user should access the digital content 
+        # after completing the order (string, required for description-based
+        # delivery, otherwise optional)
+        attr_accessor :description
+        
+        # Either 'OPTIMISTIC' or 'PESSIMISTIC'. If OPTIMISTIC, then Google
+        # will display instructions for accessing the digital content as soon
+        #as the buyer confirms the order. Optional, but default is PESSIMISTIC
+        attr_reader :display_disposition
+
+        def display_disposition=(disposition)
+          raise "display_disposition can only be set to PESSIMISTIC or OPTIMISTIC" unless disposition == OPTIMISTIC || disposition == PESSIMISTIC
+          @display_disposition = disposition
+        end
+
+        # A boolean identifying whether email delivery is used for this item.
+        attr_accessor :email_delivery
+
+        # A key required by the user to access this digital content after completing the order (string, optional)
+        attr_accessor :key
+
+        # A URL required by the user to access this digital content after completing the order (string, optional)
+        attr_accessor :url
+        
+        def initialize
+          @display_disposition = PESSIMISTIC
+        end
+        
+        # Creates a new DigitalContent object from a REXML::Element object
+        def self.create_from_element(element)
+          result = DigitalContent.new
+          result.description = element.elements['description'].text rescue nil
+          result.display_disposition = element.elements['display-disposition'].text rescue nil
+          result.email_delivery = element.elements['email-delivery'].text rescue nil # TODO need to convert to boolean?
+          result.key = element.elements['key'].text rescue nil
+          result.url = element.elements['url'].text rescue nil
+          return result
+        end
       end
     end
     
@@ -391,8 +489,7 @@ module Google4R #:nodoc:
       #
       # country_code should be a two-letter ISO 3166 country code
       # postal_code_pattern should be a full or partial postcode string, using * as a wildcard
-      def initialize(country_code, postal_code_pattern=nil)
-        
+      def initialize(country_code=nil, postal_code_pattern=nil)     
         @country_code = country_code
         @postal_code_pattern = postal_code_pattern
       end
@@ -405,7 +502,7 @@ module Google4R #:nodoc:
       
       # You can optionally initialize the Area with its value.
       def initialize(state=nil)
-        self.state = state unless state.nil?
+        @state = state unless state.nil?
       end
       
       # Writer for the state attribute. value must match /^[A-Z]{2,2}$/.
@@ -515,8 +612,8 @@ module Google4R #:nodoc:
         return area
       end
       
-      # Creates a new Area, adds it to the internal list of allowed areas for this
-      # shipping type. If you passed a block (preferred) then the block is called
+      # Creates a new Area, adds it to the internal list of allowed areas for shipping
+      # restrictions. If you passed a block (preferred) then the block is called
       # with the Area as the only parameter.
       #
       # The area to be created depends on the given parameter clazz. It can be one
@@ -551,7 +648,10 @@ module Google4R #:nodoc:
       #    end
       def create_excluded_area(clazz, &block)
         return create_area(:shipping_restrictions, :excluded_areas, clazz, &block)
-      end      
+      end
+      
+      alias :create_shipping_restrictions_allowed_area :create_allowed_area
+      alias :create_shipping_restrictions_excluded_area :create_excluded_area
     end
     
     # A class that represents the "pickup" shipping method.
@@ -584,6 +684,246 @@ module Google4R #:nodoc:
         @address_filters_excluded_areas = Array.new
       end
       
+      # Creates a new Area, adds it to the internal list of allowed areas for 
+      # address filters. If you passed a block (preferred) then the block is 
+      # called with the Area as the only parameter.
+      #
+      # The area to be created depends on the given parameter clazz. It can be one
+      # of { PostalArea, UsCountryArea, UsStateArea, UsZipArea, WorldArea }.
+      #
+      # Raises a RuntimeError if the parameter clazz is invalid.
+      #
+      # === Example
+      #
+      #    method = FlatRateShipping.new
+      #    method.create_allowed_area(UsCountryArea) do |area|
+      #       area.area = UsCountryArea::ALL
+      #    end
+      def create_address_filters_allowed_area(clazz, &block)
+        return create_area(:address_filters, :allowed_areas, clazz, &block)
+      end
+      
+      # Creates a new Area, adds it to the internal list of excluded areas for 
+      # address filters. If you passed a block (preferred) then the block is 
+      # called with the Area as the only parameter.
+      #
+      # The area to be created depends on the given parameter clazz. It can be one
+      # of { PostalArea, UsCountryArea, UsStateArea, UsZipArea, WorldArea }.
+      #
+      # Raises a RuntimeError if the parameter clazz is invalid.
+      #
+      # === Example
+      #
+      #    method = FlatRateShipping.new
+      #    method.create_allowed_area(UsCountryArea) do |area|
+      #       area.area = UsCountryArea::ALL
+      #    end
+      def create_address_filters_allowed_area(clazz, &block)
+        return create_area(:address_filters, :allowed_areas, clazz, &block)
+      end
+    end
+    
+    # A class that represents the "merchant-calculated" shipping method
+    class CarrierCalculatedShipping
+      # This encapsulates information about all of the shipping methods 
+      # for which Google Checkout should obtain shipping costs.
+      attr_reader :carrier_calculated_shipping_options
+      
+      # This encapsulates information about all of the packages that will be
+      # shipped to the buyer. At this time, merchants may only specify 
+      # one package per order.
+      attr_reader :shipping_packages
+      
+      def initialize()
+        @carrier_calculated_shipping_options = Array.new
+        @shipping_packages = Array.new
+      end
+      
+      def create_carrier_calculated_shipping_option(&block)
+        option = CarrierCalculatedShippingOption.new(self)
+        @carrier_calculated_shipping_options << option
+        
+        # Pass the newly generated rule to the given block to set its attributes.
+        yield(option) if block_given?
+        
+        return option
+      end
+      
+      def create_shipping_package(&block)
+        package = ShippingPackage.new(self)
+        @shipping_packages << package
+        
+        # Pass the newly generated rule to the given block to set its attributes.
+        yield(package) if block_given?
+        
+        return package
+      end
+      
+      # Creates a new CarrierCalculatedShipping from the given
+      # REXML::Element instance.
+      # For testing only.
+      def create_from_element(element)
+        result = CarrierCalculatedShipping.new
+        element.elements.each('carrier-calculated-shipping-options/carrier-calculated-shipping-option') do |shipping_option_element|
+          result.carrier_calculated_shipping_options << CarrierCalculatedShippingOption.create_from_element(self, shipping_option_element)
+        end
+        element.elements.each('shipping-packages/shipping-package') do |shipping_package_element|
+          result.shipping_packages << ShippingPackage.create_from_element(self, shipping_package_element)
+        end
+      end
+      
+      class CarrierCalculatedShippingOption < DeliveryMethod
+        # Constants for shipping company
+        FEDEX = 'FedEx'
+        UPS = 'UPS'
+        USPS = 'USPS'
+        
+        # Constants for carrier pickup
+        DROP_OFF = 'DROP_OFF'
+        REGULAR_PICKUP = 'REGULAR_PICKUP'
+        SPECIAL_PICKUP = 'SPECIAL_PICKUP'  
+        
+        # The CarrierCalculatedShipping instance that this option belongs to.
+        attr_reader :carrier_calculated_shipping
+        
+        # The name of the company that will ship the order.
+        # The only valid values for this tag are FedEx, UPS and USPS.
+        # (String, required)
+        alias :shipping_company :name
+        alias :shipping_company= :name=
+        
+        # The shipping option that is being offered to the buyer
+        attr_accessor :shipping_type
+       
+        # This specifies how the package will be transferred from the merchant
+        # to the shipper. Valid values for this tag are REGULAR_PICKUP, 
+        # SPECIAL_PICKUP and DROP_OFF. The default value for this tag is DROP_OFF.
+        # (optional)
+        attr_accessor :carrier_pickup
+        
+        # The fixed charge that will be added to the total cost of an order
+        # if the buyer selects the associated shipping option
+        # (Money, optional)
+        attr_accessor :additional_fixed_charge
+        
+        # The percentage amount by which a carrier-calculated shipping rate
+        # will be adjusted. The tag's value may be positive or negative.
+        # (Float, optional)
+        attr_accessor :additional_variable_charge_percent
+        
+        def initialize(carrier_calculated_shipping)
+          @carrier_calculated_shipping = carrier_calculated_shipping
+          #@carrier_pickup = DROP_OFF
+        end
+        
+        # Creates a new CarrierCalculatedShippingOption from the given
+        # REXML::Element instance.
+        # For testing only.
+        def self.create_from_element(this_shipping, element)
+          result = CarrierCalculatedShippingOption.new(this_shipping)
+          result.shipping_company = element.elements['shipping-company'].text
+          price = (element.elements['price'].text.to_f * 100).to_i
+          price_currency = element.elements['price'].attributes['currency']
+          result.price = Money.new(price, price_currency)
+          result.shipping_type = element.elements['shipping-type']
+          result.carrier_pickup = element.elements['carrier-pickup'] rescue nil
+          result.additional_fixed_charge = 
+              element.elements['additional-fixed-charge'] rescue nil
+          result.additional_variable_charge_percent =
+              element.elements['additional-variable-charge-percent'] rescue nil
+        end
+      end
+      
+      class ShippingPackage
+        # Constants for delivery address category
+        RESIDENTIAL = 'RESIDENTIAL'
+        COMMERCIAL = 'COMMERCIAL'
+        
+        # The CarrierCalculatedShipping instance that this package belongs to.
+        attr_reader :carrier_calculated_shipping
+       
+        # This contains information about the location from which an order
+        # will be shipped. (AnonymousAddress)
+        attr_accessor :ship_from
+        
+        # This indicates whether the shipping method should be applied to
+        # a residential or a commercial address. Valid values for this tag
+        # are RESIDENTIAL and COMMERCIAL. (String, optional)
+        attr_accessor :delivery_address_category
+        
+        # This contains information about the height of the package being
+        # shipped to the customer. (Google::Checktou::Dimension, optional)
+        attr_accessor :height
+        
+        # This contains information about the length of the package being
+        # shipped to the customer. (Google::Checktou::Dimension, optional)
+        attr_accessor :length
+        
+        # This contains information about the width of the package being
+        # shipped to the customer. (Google::Checktou::Dimension, optional)
+        attr_accessor :width
+        
+        def initialize(carrier_calculated_shipping)
+          @carrier_calculated_shipping = carrier_calculated_shipping
+        end
+        
+        # Creates a new ShippingPackage from the given REXML::Element instance.
+        # For testing only.
+        def self.create_from_element(this_shipping, element)
+          result = ShippingPackage.new(this_shipping)
+          result.ship_from = ShipFromAddress.create_from_element(element.elements['ship-from'])
+          result.delivery_address_category = element.elements['delivery-address-category'].text rescue nil
+          result.height = element.elements['height'].text rescue nil
+          result.length = element.elements['length'].text rescue nil
+          result.width = element.elements['width'].text rescue nil
+          return result
+        end
+      end
+    end
+    
+    # This is a base class for defining the unit of weight and dimension
+    class Unit
+      # This specifies the unit of measurement that corresponds to a shipping
+      # package's length, width or height. The only valid value for 
+      # this attribute is IN.
+      attr_accessor :unit
+      
+      # This specifies the numeric value of a unit of measurement 
+      # corresponding to an item or a shipping package. (float)
+      attr_accessor :value
+      
+      def initialize
+        raise "Google::Checkout::Unit is an abstract class!"
+      end
+      
+      # Creates a new Unit from the given REXML::Element instance.
+      def self.create_from_element(element)
+        result = self.new(element.attributes['value'].to_f) 
+        return result
+      end
+    end
+    
+    # This defines package dimension
+    class Dimension < Unit
+      
+      # Constants for unit
+      INCH = 'IN'
+      
+      def initialize(value, unit=INCH)
+        @unit = unit
+        @value = value.to_f
+      end
+    end
+    
+    # This defines item weight
+    class Weight < Unit
+      # Constants for unit
+      LB = 'LB'
+      
+      def initialize(value, unit=LB)
+        @unit = unit
+        @value = value.to_f
+      end
     end
     
     # This address is used in merchant calculation callback

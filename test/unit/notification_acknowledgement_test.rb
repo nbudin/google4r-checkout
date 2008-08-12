@@ -35,9 +35,33 @@ require 'test/frontend_configuration'
 class Google4R::Checkout::NotificationAcknowledgementTest < Test::Unit::TestCase
   include Google4R::Checkout
 
+  def setup
+    @frontend = Frontend.new(FRONTEND_CONFIGURATION)
+    @frontend.tax_table_factory = TestTaxTableFactory.new
+
+    @example_xml = %q{
+<?xml version="1.0" encoding="UTF-8"?>
+<chargeback-amount-notification xmlns="http://checkout.google.com/schema/2"
+  serial-number="bea6bc1b-e1e2-44fe-80ff-0180e33a2614">
+  <google-order-number>841171949013218</google-order-number>
+  <latest-chargeback-amount currency="GBP">226.06</latest-chargeback-amount>
+  <total-chargeback-amount currency="GBP">226.06</total-chargeback-amount>
+  <timestamp>2006-03-18T20:25:31</timestamp>
+</chargeback-amount-notification>
+}
+  end
+    
   def test_to_xml_works_as_expected
     ack = NotificationAcknowledgement.new
-    str = %q{<?xml version="1.0" encoding="UTF-8"?><notification-acknowledgment xmlns="http://checkout.google.com/schema/2"/>}
+    str = %q{<?xml version='1.0' encoding='UTF-8'?><notification-acknowledgment xmlns='http://checkout.google.com/schema/2'/>}
+    assert_equal str, ack.to_xml
+  end
+  
+  def test_to_xml_with_serial_number
+    root = REXML::Document.new(@example_xml).root
+    notification = ChargebackAmountNotification.create_from_element(root, @frontend)
+    ack = NotificationAcknowledgement.new(notification)
+    str = %q{<?xml version='1.0' encoding='UTF-8'?><notification-acknowledgment serial-number='bea6bc1b-e1e2-44fe-80ff-0180e33a2614' xmlns='http://checkout.google.com/schema/2'/>}
     assert_equal str, ack.to_xml
   end
 end

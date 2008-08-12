@@ -43,6 +43,7 @@ class Google4R::Checkout::ItemTest < Test::Unit::TestCase
       <item>
         <item-name>MegaSound 2GB MP3 Player</item-name>
         <item-description>Portable MP3 player - stores 500 songs</item-description>
+        <item-weight unit='LB' value='2.2'/>
         <unit-price currency="USD">178.00</unit-price>
         <quantity>1</quantity>
         <merchant-item-id>MGS2GBMP3</merchant-item-id>
@@ -54,6 +55,10 @@ class Google4R::Checkout::ItemTest < Test::Unit::TestCase
           </nested>
         </merchant-private-item-data>
         <tax-table-selector>Some Table</tax-table-selector>
+        <digital-content>
+          <display-disposition>OPTIMISTIC</display-disposition>
+          <email-delivery>true</email-delivery>
+        </digital-content>
       </item>}
     
     @optional_tags = [ 'merchant-item-id', 'merchant-private-item-data', 'tax-table-selector' ]
@@ -61,12 +66,13 @@ class Google4R::Checkout::ItemTest < Test::Unit::TestCase
     @command = @frontend.create_checkout_command
     @shopping_cart = @command.shopping_cart
     @item = @shopping_cart.create_item
+    @digital_content = @item.digital_content
   end
   
   def test_item_behaves_correctly
     [ :shopping_cart,  :name, :name=, :description, :description=, :unit_price, :unit_price=,
       :quantity, :quantity=, :id, :id=, :private_data, :private_data=,
-      :tax_table, :tax_table=
+      :tax_table, :tax_table=, :digital_content, :weight, :weight=
     ].each do |symbol|
       assert_respond_to @item, symbol
     end
@@ -81,6 +87,7 @@ class Google4R::Checkout::ItemTest < Test::Unit::TestCase
     assert_nil @item.private_data
     assert_nil @item.id
     assert_nil @item.tax_table
+    assert_nil @item.digital_content
   end
   
   def test_item_setters_work
@@ -101,6 +108,9 @@ class Google4R::Checkout::ItemTest < Test::Unit::TestCase
     
     @item.private_data = Hash.new
     assert_equal Hash.new, @item.private_data
+    
+    @item.weight = Weight.new(2.2)
+    assert_equal Weight, @item.weight.class
   end
   
   def test_set_tax_table_works
@@ -145,6 +155,8 @@ class Google4R::Checkout::ItemTest < Test::Unit::TestCase
       assert_equal Money.new(17800, 'USD'), item.unit_price
       assert_equal 1, item.quantity
       assert_equal 'MGS2GBMP3', item.id unless item.id.nil?
+      assert_equal 2.2, item.weight.value
+      assert_equal 'LB', item.weight.unit
       
       hash = 
         {

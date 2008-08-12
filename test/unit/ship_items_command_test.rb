@@ -41,9 +41,11 @@ class Google4R::Checkout::ShipItemsCommandTest < Test::Unit::TestCase
 
     @command.google_order_number = '841171949013218'
     @command.send_email = true
-    @item_info = ItemInfo.new('A1')
-    @item_info.create_tracking_data('UPS', 55555555)
-    @command.item_info_arr = [@item_info]
+    @item_info_1 = ItemInfo.new('A1')
+    @item_info_1.create_tracking_data('UPS', 55555555)
+    @item_info_2 = ItemInfo.new('A2')
+    @item_info_2.create_tracking_data('FedEx', 12345678)
+    @command.item_info_arr = [@item_info_1, @item_info_2]
     
 
     @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
@@ -57,6 +59,17 @@ class Google4R::Checkout::ShipItemsCommandTest < Test::Unit::TestCase
         <tracking-data>
           <carrier>UPS</carrier>
           <tracking-number>55555555</tracking-number>
+        </tracking-data>
+      </tracking-data-list>
+    </item-shipping-information>
+    <item-shipping-information>
+      <item-id>
+        <merchant-item-id>A2</merchant-item-id>
+      </item-id>
+      <tracking-data-list>
+        <tracking-data>
+          <carrier>FedEx</carrier>
+          <tracking-number>12345678</tracking-number>
         </tracking-data>
       </tracking-data-list>
     </item-shipping-information>

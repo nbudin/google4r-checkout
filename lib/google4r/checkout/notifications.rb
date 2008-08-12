@@ -35,17 +35,32 @@ module Google4R #:nodoc:
     class UnknownNotificationType < Exception
     end
     
-    # Use this objects of this class to tell Google that everything went fine.
+    # Represents a notification acknowledgment to tell Google that the 
+    # notification has been recieved and processed. Google guarantees not to
+    # resend any notification it has recieved an acknowledgment for.    
+    #  
+    # === For example, in a Rails app
     #
-    # === Example
+    #   # Let Google Checkout know we handled this notification with handshake
+    #   notification_acknowledgement = Google4R::Checkout::NotificationAcknowledgement.new(notification).to_xml
+    #   render :text => notification_acknowledgement, :status => 200
     #
-    #   render :text => NotificationAcknowledgement.to_xml
-    #--
-    # TODO: Should this become a Singleton?
-    #++
-    class NotificationAcknowledgement
+    #   or
+    #
+    #   # Without handshake
+    #   notification_acknowledgement = Google4R::Checkout::NotificationAcknowledgement.new.to_xml
+    #   render :text => notification_acknowledgement, :status => 200
+    #
+    class NotificationAcknowledgement      
+      
+      attr_reader :serial_number
+      
+      def initialize(notification=nil)
+        @serial_number = notification.serial_number unless notification.nil?
+      end
+      
       def to_xml
-        %q{<?xml version="1.0" encoding="UTF-8"?><notification-acknowledgment xmlns="http://checkout.google.com/schema/2"/>}
+        NotificationAcknowledgementXmlGenerator.new(self).generate
       end
     end
     
@@ -123,10 +138,9 @@ module Google4R #:nodoc:
       end
     end
     
-    # Google Checkout sends <new-order-notification> messages to the web service when a new
-    # order has been successfully filed with Google Checkout. These messages will be parsed
-    # into NewOrderNotification instances.
-    class NewOrderNotification
+    # Abstract class for all the notifications.  It should not be instantiated
+    # directly.
+    class Notification
       # The frontend this notification belongs to.
       attr_accessor :frontend
       
@@ -135,6 +149,21 @@ module Google4R #:nodoc:
       
       # The Google order number the new order notification belongs to (String).
       attr_accessor :google_order_number
+      
+      # The timestamp of the notification. Also see #timestamp=
+      attr_accessor :timestamp
+      
+      # Initializes the RiskInformationNotification instance with the given Frontend instance.
+      def initialize(frontend)
+        @frontend = frontend
+      end
+      
+    end
+    
+    # Google Checkout sends <new-order-notification> messages to the web service when a new
+    # order has been successfully filed with Google Checkout. These messages will be parsed
+    # into NewOrderNotification instances.
+    class NewOrderNotification < Notification
       
       # The buyer's billing address (Address).
       attr_accessor :buyer_billing_address
@@ -166,8 +195,8 @@ module Google4R #:nodoc:
       # The order's shopping cart (ShoppingCart)
       attr_accessor :shopping_cart
       
-      # The order's timestamp (Time), also see #timestamp=
-      attr_accessor :timestamp
+      # The tax tables for the items in the order notification.
+      attr_reader :tax_tables
       
       # Set the order's timestamp (Time). When the timestamp is set then the tax tables valid 
       # at the given point of time are set into the attribute tax tables from the frontend's
@@ -175,14 +204,6 @@ module Google4R #:nodoc:
       def timestamp=(time)
         @timestamp = time
         @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
-      end
-      
-      # The tax tables for the items in the order notification.
-      attr_reader :tax_tables
-      
-      # Sets the frontend attribute to the value of the frontend parameter.
-      def initialize(frontend)
-        @frontend = frontend
       end
       
       # Factory method to create a new CheckoutNotification object from the REXML:Element object
@@ -216,15 +237,7 @@ module Google4R #:nodoc:
 
     # GoogleCheckout sends <order-change-notification> messages to the web service when the
     # order's state changes. They will get parsed into OrderStateChangeNotification objects.
-    class OrderStateChangeNotification
-      # The frontend this notification belongs to.
-      attr_accessor :frontend
-
-      # The serial number of the notification (String).
-      attr_accessor :serial_number
-
-      # The order number in Google's database (String).
-      attr_accessor :google_order_number
+    class OrderStateChangeNotification < Notification
 
       # The previous financial state of the order (String, one of FinancialOrderState::*).
       attr_accessor :previous_financial_order_state
@@ -240,9 +253,9 @@ module Google4R #:nodoc:
 
       # The reason for the change (String, can be nil).
       attr_accessor :reason
-
-      # The timestamp of the notification. Also see #timestamp=
-      attr_accessor :timestamp
+        
+      # The tax tables for the items in the order notification.
+      attr_reader :tax_tables
 
       # Set the order's timestamp (Time). When the timestamp is set then the tax tables valid 
       # at the given point of time are set into the attribute tax tables from the frontend's
@@ -250,14 +263,6 @@ module Google4R #:nodoc:
       def timestamp=(time)
         @timestamp = time
         @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
-      end
-      
-      # The tax tables for the items in the order notification.
-      attr_reader :tax_tables
-      
-      # Sets the frontend attribute to the value of the frontend parameter.
-      def initialize(frontend)
-        @frontend = frontend
       end
       
       # Factory method that creates a new OrderStateChangeNotification from an REXML::Element instance.
@@ -283,30 +288,13 @@ module Google4R #:nodoc:
 
     # Google Checkout sends <charge-amount-notification> messages to the web service when the
     # to confirm that the charge was successfully executed.
-    class ChargeAmountNotification
-           
-      # The serial number of the notification (String).
-      attr_accessor :serial_number
-
-      # The order number in Google's database (String).
-      attr_accessor :google_order_number
-
-      # The timestamp of the notification
-      attr_accessor :timestamp
+    class ChargeAmountNotification < Notification
       
       # The amount most recently charged for an order (Money)
       attr_accessor :latest_charge_amount
       
       # The total amount charged for an order (Money)
       attr_accessor :total_charge_amount
-
-      # The Frontend instance for this Notification
-      attr_accessor :frontend
-      
-      # Initializes the ChargeAmountNotification instance with the given Frontend instance.
-      def initialize(frontend)
-        @frontend = frontend
-      end
 
       # Factory method that creates a new ChargeAmountNotification from an REXML::Element instance.
       # Use this to create instances of ChargeAmountNotification.
@@ -336,29 +324,13 @@ module Google4R #:nodoc:
     # Google Checkout sends a <refund-amount-notification> after successfully executing 
     # a <refund-order> order processing command.  See the Google Checkout documentation for more details:
     # http://code.google.com/apis/checkout/developer/index.html#refund_amount_notification
-    class RefundAmountNotification
-      # The serial number of the notification (String).
-      attr_accessor :serial_number
-
-      # The order number in Google's database (String).
-      attr_accessor :google_order_number
-
-      # The timestamp of the notification
-      attr_accessor :timestamp
+    class RefundAmountNotification < Notification
       
       # The amount most recently refunded for an order (Money)
       attr_accessor :latest_refund_amount
       
       # The total amount refunded for an order (Money)
       attr_accessor :total_refund_amount
-
-      # The Frontend instance for this Notification
-      attr_accessor :frontend
-      
-      # Initializes the RefundAmountNotification instance with the given Frontend instance.
-      def initialize(frontend)
-        @frontend = frontend
-      end
 
       # Factory method that creates a new RefundAmountNotification from an REXML::Element instance.
       # Use this to create instances of RefundAmountNotification.
@@ -389,29 +361,13 @@ module Google4R #:nodoc:
     # chargeback against the order and Google approves the chargeback.
     # See the Google Checkout documentation for more details:
     # http://code.google.com/apis/checkout/developer/index.html#chargeback_amount_notification
-    class ChargebackAmountNotification
-      # The serial number of the notification (String).
-      attr_accessor :serial_number
-
-      # The order number in Google's database (String).
-      attr_accessor :google_order_number
-
-      # The timestamp of the notification
-      attr_accessor :timestamp
+    class ChargebackAmountNotification < Notification
       
       # The amount most recently charged back for an order (Money)
       attr_accessor :latest_chargeback_amount
       
       # The total amount charged back for an order (Money)
       attr_accessor :total_chargeback_amount
-
-      # The Frontend instance for this Notification
-      attr_accessor :frontend
-      
-      # Initializes the ChargebackAmountNotification instance with the given Frontend instance.
-      def initialize(frontend)
-        @frontend = frontend
-      end
 
       # Factory method that creates a new ChargebackAmountNotification from an REXML::Element instance.
       # Use this to create instances of ChargebackAmountNotification.
@@ -442,15 +398,7 @@ module Google4R #:nodoc:
     # request for an explicit credit card reauthorization.
     # See the Google Checkout documentation for more details:
     # http://code.google.com/apis/checkout/developer/index.html#authorization_amount_notification
-    class AuthorizationAmountNotification
-      # The serial number of the notification (String).
-      attr_accessor :serial_number
-
-      # The order number in Google's database (String).
-      attr_accessor :google_order_number
-
-      # The timestamp of the notification
-      attr_accessor :timestamp
+    class AuthorizationAmountNotification < Notification
       
       # The amount that is reauthorized to be charged to the customer's credit card (Money)
       attr_accessor :authorization_amount
@@ -463,14 +411,6 @@ module Google4R #:nodoc:
       
       # Credit verification value for the order (String)
       attr_accessor :cvn_response
-      
-      # The Frontend instance for this Notification
-      attr_accessor :frontend
-      
-      # Initializes the AuthorizationAmountNotification instance with the given Frontend instance.
-      def initialize(frontend)
-        @frontend = frontend
-      end
 
       # Factory method that creates a new AuthorizationAmountNotification from an REXML::Element instance.
       # Use this to create instances of AuthorizationAmountNotification.
@@ -501,12 +441,7 @@ module Google4R #:nodoc:
     # Google Checkout sends out <risk-information-notification> messages for fraud detection
     # related information. See the Google Checkout documentation for more details:
     # http://code.google.com/apis/checkout/developer/index.html#risk_information_notification
-    class RiskInformationNotification
-      # The serial number of the notification (String).
-      attr_accessor :serial_number
-
-      # The order number in Google's database (String).
-      attr_accessor :google_order_number
+    class RiskInformationNotification < Notification
 
       # Is the order eligible for Google Checkout's payment guarantee policy (boolean).
       attr_accessor :eligible_for_protection
@@ -527,18 +462,7 @@ module Google4R #:nodoc:
       attr_accessor :ip_address
 
       # The age of the buyer's google checkout account in days
-      attr_accessor :buyer_account_age
-
-      # The timestamp of the notification
-      attr_accessor :timestamp
-      
-      # The Frontend instance for this Notification
-      attr_accessor :frontend
-      
-      # Initializes the RiskInformationNotification instance with the given Frontend instance.
-      def initialize(frontend)
-        @frontend = frontend
-      end
+      attr_accessor :buyer_account_age      
 
       # Factory method that creates a new RiskInformationNotification from an REXML::Element instance.
       # Use this to create instances of RiskInformationNotification

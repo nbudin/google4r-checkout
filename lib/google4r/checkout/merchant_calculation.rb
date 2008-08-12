@@ -123,12 +123,16 @@ module Google4R #:nodoc:
       # An array of merchant codes
       attr_reader :merchant_code_strings
       
+      # The tax tables for the items in the order notification.
+      attr_reader :tax_tables
+      
       # Sets the frontend attribute to the value of the frontend parameter.
       def initialize(frontend)
         @frontend = frontend
         @anonymous_addresses = Array.new
         @shipping_methods = Array.new
         @merchant_code_strings = Array.new
+        @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.now)
       end
       
       # Factory method to create a new MerchantCalculationCallback object from 

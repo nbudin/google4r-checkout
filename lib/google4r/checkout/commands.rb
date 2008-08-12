@@ -260,7 +260,9 @@ module Google4R #:nodoc:
       #
       # Raises a ArgumentError if the parameter clazz is invalid.
       def create_shipping_method(clazz, &block)
-        if not [ PickupShipping, FlatRateShipping, MerchantCalculatedShipping ].include?(clazz) then
+        if not [ PickupShipping, FlatRateShipping, 
+                 MerchantCalculatedShipping, CarrierCalculatedShipping
+               ].include?(clazz) then
           raise ArgumentError, "Unknown shipping method: #{clazz.inspect}."
         end
         
@@ -288,6 +290,10 @@ module Google4R #:nodoc:
       def initialize(serial_number, redirect_url)
         @serial_number = serial_number
         @redirect_url = redirect_url
+      end
+      
+      def to_s
+        return @redirect_url
       end
     end
 

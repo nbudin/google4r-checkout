@@ -1,5 +1,20 @@
 =google4r-checkout Changelog
 
+== 1.0.3 (2008-08-08)
+
+* Added analytics_data support.  Thanks to Will Schwenk!
+* Added create_address_filters_allowed_area and create_address_filters_excluded_area method to the MerchantCalculatedShipping class.
+* Created two aliases create_shipping_restrictions_allowed_area and create_shipping_restrictions_excluded_area to facilitate deprecation of create_allowed_area and create_excluded_area.
+* country_code in PostalArea class is now optional in the initialize method so it can be called properly in the create_area method in shared.rb.
+* Added line-item shipping support.
+* Refactor notifications to extract a base notification class that has the front_end, serial_number, google_order_number and timestamp.
+* Added notification handshake support (i.e. serial-number) for notifciation-acknowledgement.
+* Added digital delivery support.  Thanks to Andy Kim and Matthew Moore!
+* Added Carrier Calculated Shipping support.
+* Added unit tests - carrier_calculated_shipping_test.rb, digital_content_test.rb, *_items_*commands.rb
+* Updated unit tests - item_test.rb, merchant_calculated_shipping_test.rb, notification_acknowledgement_test.rb
+* Updated integration test - checkout_command_test.rb
+
 == 1.0.2 (2007-08-18)
 
 * Moved Address from notifications.rb to shared.rb

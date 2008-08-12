@@ -39,7 +39,7 @@ class Google4R::Checkout::MerchantCalculatedShippingTest < Test::Unit::TestCase
     @shipping = MerchantCalculatedShipping.new
   end
   
-  def test_flat_rate_shipping_method_behaves_correctly
+  def test_merchant_calculated_shipping_method_behaves_correctly
     [ :name, :name=, :price, :price=, 
       :shipping_restrictions_allowed_areas, :shipping_restrictions_excluded_areas,
       :address_filters_allowed_areas, :address_filters_excluded_areas,
@@ -69,7 +69,7 @@ class Google4R::Checkout::MerchantCalculatedShippingTest < Test::Unit::TestCase
   end
   
   def test_merchant_calculated_shipping_price_is_validated
-    # Test that FlatRateShippingMethod checks for its price attribute responding
+    # Test that MerchantCalculatedShipping checks for its price attribute responding
     # to cents and currency.
     assert_raises(RuntimeError) { @shipping.price = nil }
     assert_raises(RuntimeError) { @shipping.price = 10 }
@@ -111,6 +111,42 @@ class Google4R::Checkout::MerchantCalculatedShippingTest < Test::Unit::TestCase
       end
     end
   end
+  
+  def test_create_shipping_restrictions_allowed_excluded_areas_works_with_block
+    [ [ :shipping_restrictions_allowed_areas, :create_shipping_restrictions_allowed_area ], 
+      [ :shipping_restrictions_excluded_areas, :create_shipping_restrictions_excluded_area ] ].each do |pair|
+      read_sym, create_sym = pair
+      
+      [ UsZipArea, UsStateArea, UsCountryArea ].each do |clazz|
+    
+        the_area = nil
+    
+        res = 
+          @shipping.send(create_sym, clazz) do |area|
+            the_area = area
+            assert_kind_of clazz, area
+          end
+      
+        assert_equal res, the_area
+        assert @shipping.send(read_sym).include?(the_area)
+      end
+    end
+  end
+
+  def test_create_shipping_restrictions_allowed_excluded_areas_works_without_block
+    [ [ :shipping_restrictions_allowed_areas, :create_shipping_restrictions_allowed_area], 
+      [ :shipping_restrictions_excluded_areas, :create_shipping_restrictions_excluded_area ] ].each do |pair|
+      read_sym, create_sym = pair
+
+      [ UsZipArea, UsStateArea, UsCountryArea ].each do |clazz|
+        area = @shipping.send(create_sym, clazz)
+      
+        assert_kind_of clazz, area
+      
+        assert @shipping.send(read_sym).include?(area)
+      end
+    end
+  end
 
   def test_create_allowed_excluded_areas_validates_parameter
     [ :create_allowed_area, :create_excluded_area ].each do |sym|
@@ -118,7 +154,7 @@ class Google4R::Checkout::MerchantCalculatedShippingTest < Test::Unit::TestCase
     end
   end
   
-  def test_new_create_area_with_flat_rate_shipping
+  def test_new_create_area_with_merchant_calculated_shipping
     [ [ :shipping_restrictions, :allowed_areas ],
       [ :shipping_restrictions, :excluded_areas ],
       [ :address_filters, :allowed_areas ],
