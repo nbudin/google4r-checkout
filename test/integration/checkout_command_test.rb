@@ -58,8 +58,10 @@ class Google4R::Checkout::CheckoutCommandIntegrationTest < Test::Unit::TestCase
   def test_sending_to_google_works_with_carrier_calculated_shipping
     setup_command(@command, CarrierCalculatedShipping)
     result = @command.send_to_google_checkout
-    puts @command.to_xml
-    puts result
+    # Uncomment the two lines below to see the shopping cart xml and
+    # the redirect URL
+    #puts @command.to_xml
+    #puts result
     assert_kind_of CheckoutRedirectResponse, result
   end
   
