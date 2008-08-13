@@ -14,6 +14,7 @@
 * Added unit tests - carrier_calculated_shipping_test.rb, digital_content_test.rb, *_items_*commands.rb
 * Updated unit tests - item_test.rb, merchant_calculated_shipping_test.rb, notification_acknowledgement_test.rb
 * Updated integration test - checkout_command_test.rb
+* Added HTML Form API Signature support.  It is included in utils.rb.
 
 == 1.0.2 (2007-08-18)
 
