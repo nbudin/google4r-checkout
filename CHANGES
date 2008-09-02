@@ -1,5 +1,10 @@
 =google4r-checkout Changelog
 
+== 1.0.4 (2008-09-02)
+
+* Fixed undefined email_delivery? method bug
+* Added unit test to cover digital content creation
+
 == 1.0.3 (2008-08-08)
 
 * Added analytics_data support.  Thanks to Will Schwenk!
