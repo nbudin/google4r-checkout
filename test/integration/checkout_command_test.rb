@@ -158,6 +158,16 @@ class Google4R::Checkout::CheckoutCommandIntegrationTest < Test::Unit::TestCase
         item.quantity = i * 3
         item.id = "test-#{i}-123456789"
         item.weight = Weight.new(2.2)
+        if (i == 5)
+          item.create_digital_content do |dc|
+            dc.display_disposition = 
+                Google4R::Checkout::Item::DigitalContent::OPTIMISTIC
+            dc.description = "Information on how to get your content"
+            dc.url = "http://my.domain.com/downloads"
+            dc.key = "abcde12345"
+            dc.email_delivery = false
+          end
+        end
       end
     end
   end
