@@ -49,6 +49,9 @@ module Google4R #:nodoc:
       CHECKOUT_API_URL = 'api/checkout/v2/merchantCheckout/Merchant/%s'
       
       ORDER_PROCESSING_API_URL = 'api/checkout/v2/request/Merchant/%s'
+
+      ORDER_REPORT_API_URL = 'api/checkout/v2/reports/Merchant/%s'
+
       
       # The Frontent class that was used to create this CheckoutCommand and whose
       # configuration will be used.
@@ -79,6 +82,7 @@ module Google4R #:nodoc:
       # TODO: The send-and-expect-response part should be adaptable to other commands and responses.
       #++
       def send_to_google_checkout
+        xml_response = (self.class == OrderReportCommand) ? false : true        
         # Create HTTP(S) POST command and set up Basic Authentication.
         url_str = 
           if frontend.configuration[:use_sandbox] then
@@ -89,6 +93,8 @@ module Google4R #:nodoc:
         url_str += 
           if self.class == CheckoutCommand then
             CHECKOUT_API_URL
+          elsif self.class == OrderReportCommand then
+            ORDER_REPORT_API_URL
           else
             ORDER_PROCESSING_API_URL
           end
@@ -110,18 +116,23 @@ module Google4R #:nodoc:
         
         case result
         when Net::HTTPSuccess then
-          xml_doc = REXML::Document.new(result.body)
-          
-          case xml_doc.root.name
-          when 'checkout-redirect'
-            serial_number = xml_doc.elements['/checkout-redirect'].attributes['serial-number']
-            redirect_url = xml_doc.elements['/checkout-redirect/redirect-url/text()'].value
-            return CheckoutRedirectResponse.new(serial_number, redirect_url)
-          when 'request-received'
-            serial_number = xml_doc.elements['/request-received'].attributes['serial-number']
-            return serial_number
+          if ( xml_response ) then
+            xml_doc = REXML::Document.new(result.body)
+             
+            case xml_doc.root.name
+            when 'checkout-redirect'
+                serial_number = xml_doc.elements['/checkout-redirect'].attributes['serial-number']
+                redirect_url = xml_doc.elements['/checkout-redirect/redirect-url/text()'].value
+                return CheckoutRedirectResponse.new(serial_number, redirect_url)
+            when 'request-received'
+                serial_number = xml_doc.elements['/request-received'].attributes['serial-number']
+                return serial_number
+            else
+                raise "Unknown response:\n--\n#{xml_doc.to_s}\n--"
+            end
           else
-            raise "Unknown response:\n--\n#{xml_doc.to_s}\n--"
+            # handle the CSV output of the order-report-list command
+            return result.body
           end
         when Net::HTTPClientError then
           xml_doc = REXML::Document.new(result.body)
@@ -465,8 +476,7 @@ module Google4R #:nodoc:
     # The <cancel-items> command lets you specify that one or more
     # specific items in an order have been cancelled, meaning they 
     # will not be delivered to the customer.
-    class CancelItemsCommand < ItemsCommand
-      
+    class CancelItemsCommand < ItemsCommand  
       # The reason that you are canceling one or more line items
       attr_accessor :reason
       
@@ -491,6 +501,66 @@ module Google4R #:nodoc:
     class ResetItemsShippingInformationCommand < ItemsCommand
       def to_xml
         ResetItemsShippingInformationCommandXmlGenerator.new(self).generate
+      end
+    end
+
+    # The <order-list-request> command lets you to download a list of 
+    # Google Checkout orders into a comma-separated file. 
+    # The API will return a list of orders for a period of up to 31 days, 
+    # and you can limit results to orders that have specific financial or 
+    # fulfillment order states.
+    # http://code.google.com/apis/checkout/developer/Google_Checkout_XML_API_Order_Report_API.html
+    class OrderReportCommand < Command
+      # The earliest time that an order could have been submitted to be
+      # included in the API response (Time)
+      attr_reader :start_date
+      
+      # The time before which an order must have been sent to be included
+      # in the API response (Time)
+      attr_reader :end_date
+      
+      # The financial status of an order
+      attr_accessor :financial_state
+      
+      # The fulfillment status of an order
+      attr_accessor :fulfillment_state
+      
+      # The time zone that will be associated with the start date and
+      # end date for the report
+      attr_accessor :date_time_zone
+      
+      def initialize(frontend, start_date, end_date)
+        super frontend
+        raise 'start_date has to be of type Time' unless start_date.class == Time
+        raise 'end_date has to be of type Time' unless start_date.class == Time
+        raise 'end_date has to be before start_date' unless
+            end_date >= start_date
+        @start_date = start_date
+        @end_date = end_date
+      end
+
+      def start_date
+        return @start_date.strftime('%Y-%m-%dT%H:%M:%S')
+      end
+      
+      def end_date
+        return @end_date.strftime('%Y-%m-%dT%H:%M:%S')
+      end
+      
+      def financial_state=(financial_state)
+        raise 'Invalid financial state %s' % financial_state unless
+            FinancialState.constants.include?(financial_state)
+        @financial_state = financial_state
+      end
+      
+      def fulfillment_state=(fulfillment_state)
+        raise 'Invalid fulfillment state %s' % fulfillment_state unless
+            FulfillmentState.constants.include?(fulfillment_state)
+        @fulfillment_state = fulfillment_state
+      end
+      
+      def to_xml
+        ReturnOrderReportCommandXmlGenerator.new(self).generate
       end
     end
   end

@@ -199,6 +199,12 @@ module Google4R #:nodoc:
       def create_reset_items_shipping_information_command
         return ResetItemsShippingInformationCommand.new(self)
       end
+
+      # Factory method that creates a new OrderReportCommand object. Use this method to create 
+      # your OrderReportCommand instances.
+      def create_order_report_command(start_date, end_date)
+        return OrderReportCommand.new(self, start_date, end_date)
+      end
     end
   end
 end

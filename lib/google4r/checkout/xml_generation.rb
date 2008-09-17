@@ -71,7 +71,8 @@ module Google4R #:nodoc:
         BackorderItemsCommand => 'backorder-items',
         CancelItemsCommand => 'cancel-items',
         ReturnItemsCommand => 'return-items',
-        ResetItemsShippingInformationCommand => 'reset-items-shipping-information'
+        ResetItemsShippingInformationCommand => 'reset-items-shipping-information',
+        OrderReportCommand => 'order-list-request',
       }
       
       def initialize(command)
@@ -840,6 +841,40 @@ module Google4R #:nodoc:
     end
     
     class ResetItemsShippingInformationCommandXmlGenerator < ItemsCommandXmlGenerator
+    end
+
+    class ReturnOrderReportCommandXmlGenerator < CommandXmlGenerator
+      def initialize(command)
+        @command = command
+      end
+      
+      protected
+      
+      def process_command(command)
+        root = super
+        # TODO - sanity check format ?
+        root.add_attribute('start-date', command.start_date.to_s)
+        root.add_attribute('end-date', command.end_date.to_s)
+        flow_element = root
+
+        # <financial-state>
+        if command.financial_state then
+          financial_state_element = flow_element.add_element('financial-state')
+          financial_state_element.text = command.financial_state.to_s
+        end
+        
+        # <fulfillment-state>
+        if command.fulfillment_state then
+          fulfillment_state_element = flow_element.add_element('fulfillment-state')
+          fulfillment_state_element.text = command.fulfillment_state.to_s
+        end
+        
+        # <date-time-zone>
+        if command.date_time_zone then
+          dtz_element = flow_element.add_element('date-time-zone')
+          dtz_element.text = command.date_time_zone.to_s
+        end
+      end
     end
   end
 end

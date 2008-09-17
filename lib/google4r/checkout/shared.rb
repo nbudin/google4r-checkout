@@ -1052,5 +1052,35 @@ module Google4R #:nodoc:
         @tracking_number = tracking_number.to_s
       end
     end
+    
+    # financial_state
+    # REVIEWING - Google Checkout is reviewing the order.
+    # CHARGEABLE - The order is ready to be charged.
+    # CHARGING - The order is being charged; you may not refund or cancel an order until is the charge is completed.
+    # CHARGED - The order has been successfully charged; if the order was only partially charged, the buyer's account page will reflect the partial charge.
+    # PAYMENT_DECLINED - The charge attempt failed.
+    # CANCELLED - The seller canceled the order; an order's financial state cannot be changed after the order is canceled.
+    # CANCELLED_BY_GOOGLE - Google canceled the order. Google may cancel orders due to a failed charge without a replacement credit card being provided within a set period of time or due to a failed risk check. If Google cancels an order, you will be notified of the reason the order was canceled in the <reason> tag of an <order-state-change-notification>.
+    class FinancialState
+      REVIEWING = 'REVIEWING'
+      CHARGEABLE = 'CHARGEABLE'
+      CHARGING = 'CHARGING'
+      CHARGED = 'CHARGED'
+      PAYMENT_DECLINED = 'PAYMENT_DECLINED'
+      CANCELLED = 'CANCELLED'
+      CANCELLED_BY_GOOGLE = 'CANCELLED_BY_GOOGLE'
+    end
+    
+    # fulfillment_state
+    # NEW - The order has been received but not prepared for shipping.
+    # PROCESSING - The order is being prepared for shipping.
+    # DELIVERED - The seller has shipped the order.
+    # WILL_NOT_DELIVER - The seller will not ship the order; this status is used for canceled orders.
+    class FulfillmentState
+      NEW = 'NEW'
+      PROCESSING = 'PROCESSING'
+      DELIVERED = 'DELIVERED'
+      WILL_NOT_DELIVER = 'WILL_NOT_DELIVER'
+    end
   end
 end

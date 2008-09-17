@@ -55,7 +55,8 @@ class Google4R::Checkout::FrontendTest < Test::Unit::TestCase
       :create_add_tracking_data_command, :create_archive_order_command,
       :create_unarchive_order_command, :create_ship_items_command,
       :create_backorder_items_command, :create_return_items_command,
-      :create_cancel_items_command, :create_reset_items_shipping_information_command
+      :create_cancel_items_command, :create_reset_items_shipping_information_command,
+      :create_order_report_command
     ].each do |symbol|
       assert_respond_to @frontend, symbol
     end
@@ -130,7 +131,14 @@ class Google4R::Checkout::FrontendTest < Test::Unit::TestCase
   end
   
   def test_create_reset_items_shipping_information_command_works_correctly
-    assert_kind_of ResetItemsShippingInformationCommand, @frontend.create_reset_items_shipping_information_command
+    assert_kind_of ResetItemsShippingInformationCommand, 
+        @frontend.create_reset_items_shipping_information_command
   end
 
+  def test_create_order_report_command_works_correctly
+    assert_kind_of OrderReportCommand,
+        @frontend.create_order_report_command(
+            Time.utc(2007, 9, 1, 0, 0, 0),
+            Time.utc(2007, 9, 30, 23, 59, 59))
+  end
 end
