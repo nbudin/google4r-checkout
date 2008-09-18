@@ -1,5 +1,10 @@
 =google4r-checkout Changelog
 
+== 1.0.5 (2008-9-17)
+
+* Added Order Report API support.  Thanks to Daniel Pirone!
+* Added unit tests for OrderReportCommand.  Added validation checks fro start_date, end_date, financial_state and fulfillment_state.
+
 == 1.0.4 (2008-09-02)
 
 * Fixed undefined email_delivery? method bug
