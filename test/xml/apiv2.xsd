@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2006 Google Inc. All Rights Reserved.
+  Copyright 2009 Google Inc. All Rights Reserved.
 
-  Google Confidential
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://checkout.google.com/schema/2" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd" targetNamespace="http://checkout.google.com/schema/2" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:complexType name="Hello" />
