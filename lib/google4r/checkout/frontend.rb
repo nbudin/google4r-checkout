@@ -170,6 +170,12 @@ module Google4R #:nodoc:
         return UnarchiveOrderCommand.new(self)
       end
       
+      # Factory method to create a new CreateOrderRecurrenceRequestCommand object. Use this method to create
+      # your CreateOrderRecurrenceRequestCommand instances.
+      def create_create_order_recurrence_request_command
+        return CreateOrderRecurrenceRequestCommand.new(self)
+      end
+      
       # Factory method to create a new ShipItemsCommand object. Use this method to create
       # your ShipItemsCommand instances.
       def create_ship_items_command

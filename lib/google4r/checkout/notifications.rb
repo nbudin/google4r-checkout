@@ -132,6 +132,8 @@ module Google4R #:nodoc:
           ChargebackAmountNotification.create_from_element(root, frontend)
         when 'authorization-amount-notification' then
           AuthorizationAmountNotification.create_from_element(root, frontend)
+        when 'cancelled-subscription-notification' then
+          CancelledSubscriptionNotification.create_from_element(root, frontend)
         else
           raise UnknownNotificationType, "Unknown notification type: #{root.name}"
         end
@@ -484,6 +486,33 @@ module Google4R #:nodoc:
         risk.avs_response = element.elements['risk-information/avs-response'].text
 
         return risk
+      end
+    end
+    
+    # CancelledSubscriptionNotification objects contain information about the
+    # cancellation of a subscription, including the item-ids, google order number,
+    # reason, and timestamp.
+    class CancelledSubscriptionNotification < Notification
+      
+      # The reason for the cancellation (String, can be nil.)
+      attr_accessor :reason
+      
+      # The ids of the items being cancelled (Array of Strings)
+      attr_accessor :item_ids
+      
+      # The google order number of the subscription being cancelled
+      attr_accessor :google_order_number
+      
+      def self.create_from_element(element, frontend)
+        csn = CancelledSubscriptionNotification.new(frontend)
+        
+        csn.serial_number = element.attributes['serial-number']
+        csn.timestamp = Time.parse(element.elements['timestamp'].text)
+        csn.reason = element.elements['reason'].text rescue nil
+        csn.item_ids = element.elements['item-ids/item-id/merchant-item-id'].collect {|i| i.text} rescue []
+        csn.google_order_number = element.elements['google-order-number'].text
+        
+        return csn
       end
     end
     

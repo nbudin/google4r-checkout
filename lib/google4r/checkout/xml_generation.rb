@@ -30,6 +30,7 @@
 
 require 'stringio'
 require 'rexml/document'
+require 'time'
 
 module Google4R #:nodoc:
   module Checkout #:nodoc:
@@ -67,6 +68,7 @@ module Google4R #:nodoc:
         SendBuyerMessageCommand => 'send-buyer-message',
         ArchiveOrderCommand => 'archive-order',
         UnarchiveOrderCommand => 'unarchive-order',
+        CreateOrderRecurrenceRequestCommand => 'create-order-recurrence-request',
         ShipItemsCommand => 'ship-items',
         BackorderItemsCommand => 'backorder-items',
         CancelItemsCommand => 'cancel-items',
@@ -290,6 +292,66 @@ module Google4R #:nodoc:
         if not item.digital_content.nil? then
           self.process_digital_content(item_element, item.digital_content)
         end
+        
+        if not (item.kind_of? Item::Subscription::RecurrentItem or item.subscription.nil?) then
+          self.process_subscription(item_element, item.subscription)
+        end
+      end
+      
+      # Adds a <subscription> element to a parent (<item>) element
+      def process_subscription(parent, subscription)
+        subscription_element = parent.add_element('subscription')
+        
+        if not subscription.no_charge_after.nil? then
+          subscription_element.attributes['no-charge-after'] = subscription.no_charge_after.xmlschema
+        end
+        
+        if not subscription.period.nil? then
+          subscription_element.attributes['period'] = subscription.period.to_s
+        end
+        
+        if not subscription.start_date.nil? then
+          subscription_element.attributes['start-date'] = subscription.start_date.xmlschema
+        end
+        
+        if not subscription.type.nil? then
+          subscription_element.attributes['type'] = subscription.type.to_s
+        end
+        
+        if subscription.payments.length > 0
+          payments_element = subscription_element.add_element('payments')
+          
+          subscription.payments.each do |payment|
+            self.process_subscription_payment(payments_element, payment)
+          end
+        end
+        
+        if subscription.recurrent_items.length > 0
+          # this is a little bit of a hack; we use the normal way of generating items
+          # for a shopping cart, and then rename the elements to 'recurrent-item'
+          # after the fact
+          
+          subscription.recurrent_items.each do |item|
+            self.process_item(subscription_element, item)
+          end
+          
+          subscription_element.elements.each('item') do |item_element|
+            item_element.name = 'recurrent-item'
+          end
+        end
+      end
+      
+      # Adds a <subcription-payment> element to a parent (<payments>) element
+      def process_subscription_payment(parent, payment)
+        payment_element = parent.add_element('subscription-payment')
+        
+        if not payment.times.nil? then
+          payment_element.attributes['times'] = payment.times.to_s
+        end
+        
+        if not payment.maximum_charge.nil? then
+          payment_element.add_element('maximum-charge', { 'currency' => payment.maximum_charge.currency }).text = payment.maximum_charge.to_s
+        end
       end
       
       # Adds a <digital-content> element to a parent (<item>) element
@@ -433,17 +495,17 @@ module Google4R #:nodoc:
         if not package.height.nil?
           height_element = element.add_element('height')
           height_element.add_attribute('unit', package.height.unit)
-          height_element.add_attribute('value', package.height.value)
+          height_element.add_attribute('value', package.height.value.to_s)
         end
         if not package.length.nil?
           length_element = element.add_element('length')
           length_element.add_attribute('unit', package.length.unit)
-          length_element.add_attribute('value', package.length.value)
+          length_element.add_attribute('value', package.length.value.to_s)
         end
         if not package.width.nil?
           width_element = element.add_element('width')
           width_element.add_attribute('unit', package.width.unit)
-          width_element.add_attribute('value', package.width.value)
+          width_element.add_attribute('value', package.width.value.to_s)
         end
       end
       
@@ -683,6 +745,19 @@ module Google4R #:nodoc:
 
       def process_command(command)        
         super
+      end
+    end
+    
+    class CreateOrderRecurrenceRequestCommandXmlGenerator < CheckoutCommandXmlGenerator
+      
+      protected
+      
+      def process_command(command)
+        root = @document.add_element("create-order-recurrence-request" , { 'xmlns' => 'http://checkout.google.com/schema/2' })
+        
+        root.attributes['google-order-number'] = command.google_order_number
+        
+        self.process_shopping_shopping_cart(root, command.shopping_cart)
       end
     end
     

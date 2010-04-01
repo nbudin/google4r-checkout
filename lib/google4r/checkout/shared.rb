@@ -266,6 +266,26 @@ module Google4R #:nodoc:
         return @digital_content
       end
       
+      # Subscription information for this item. Optional.
+      attr_reader :subscription
+      
+      def create_subscription(subscription=nil, &block)
+        
+        if @subscription.nil?
+          if subscription.nil?
+            @subscription = Subscription.new
+          else
+            @subscription = subscription
+          end
+        end
+        
+        if block_given?
+          yield @subscription
+        end
+        
+        return @subscription
+      end
+      
       # Create a new Item in the given Cart. You should not instantize this class directly
       # but use Cart#create_item instead.
       def initialize(shopping_cart)
@@ -363,6 +383,179 @@ module Google4R #:nodoc:
           result.key = element.elements['key'].text rescue nil
           result.url = element.elements['url'].text rescue nil
           return result
+        end
+      end
+      
+      class Subscription
+        
+        # Constants for period
+        DAILY = 'DAILY'
+        WEEKLY = 'WEEKLY'
+        SEMI_MONTHLY = 'SEMI_MONTHLY'
+        MONTHLY = 'MONTHLY'
+        EVERY_TWO_MONTHS = 'EVERY_TWO_MONTHS'
+        QUARTERLY = 'QUARTERLY'
+        YEARLY = 'YEARLY'
+        
+        # Constants for type
+        MERCHANT = 'merchant'
+        GOOGLE = 'google'
+        
+        # Optional. The no-charge-after attribute specifies the latest date and time that 
+        # you can charge the customer for the subscription. This element can help you to 
+        # ensure that you do not overcharge your customers.
+        attr_accessor :no_charge_after
+        
+        # Required. The period attribute specifies how frequently you will charge the 
+        # customer for the subscription. Valid values for this attribute are DAILY, 
+        # WEEKLY, SEMI_MONTHLY, MONTHLY, EVERY_TWO_MONTHS, QUARTERLY, and YEARLY.
+        attr_reader :period
+        
+        def period=(period)
+          unless [DAILY, WEEKLY, SEMI_MONTHLY, MONTHLY, EVERY_TWO_MONTHS, QUARTERLY, YEARLY].include?(period)
+            raise "period can only be set to DAILY, WEEKLY, SEMI_MONTHLY, MONTHLY, EVERY_TWO_MONTHS, QUARTERLY, or YEARLY"
+          end
+          @period = period
+        end
+        
+        # Optional. The start-date attribute specifies the date that the subscription's 
+        # recurrence period will begin. Like all dates in Checkout, this is in ISO 8601
+        # format. If you set the <unit-price> tag's value to a nonzero value, then the 
+        # start-date for the subscription will automatically be set to the time that is 
+        # exactly one recurrence period after the order is placed.
+        attr_accessor :start_date
+        
+        # Required. The type attribute identifies the type of subscription that you are 
+        # creating. The valid values for this attribute are merchant and google, and this 
+        # specifies who handles the recurrences. The merchant value specifies 
+        # Merchant-Handled recurrences, and the google value specifies Google-Handled 
+        # recurrences.
+        attr_reader :type
+        
+        def type=(type)
+          unless [MERCHANT, GOOGLE].include?(type)
+            raise "type can only be set to MERCHANT or GOOGLE"
+          end
+          @type = type
+        end
+        
+        # Container for payments
+        attr_reader :payments
+        
+        def add_payment(&block)
+          payment = SubscriptionPayment.new(self)
+          @payments << payment
+
+          # Pass the newly generated payment to the given block to set its attributes.
+          yield(payment) if block_given?
+        
+          return payment
+        end
+        
+        # Container for recurrent items
+        attr_reader :recurrent_items
+
+        def add_recurrent_item(&block)
+          item = RecurrentItem.new(self)
+          @recurrent_items << item
+          
+          # Pass the newly generated item to the given block to set its attributes.
+          yield(item) if block_given?
+          
+          return item
+        end
+        
+        def initialize
+          @payments = []
+          @recurrent_items = []
+        end
+        
+        def self.create_from_element(element)
+          result = Subscription.new
+          result.no_charge_after = Time.iso8601(element.attributes['no-charge-after']) rescue nil
+          result.period = element.attributes['period'] rescue nil
+          result.start_date = Time.iso8601(element.attributes['start-date']) rescue nil
+          result.type = element.attributes['type'] rescue nil
+          
+          element.elements['payments/subscription-payment'].each do |payment_element|
+            result.payments << SubscriptionPayment.create_from_element(subscription, payment_element)
+          end
+          
+          element.elements['recurrent-item'].each do |item_element|
+            result.recurrent_items << Item.create_from_element(item_element)
+          end
+          
+          return result
+        end
+        
+        class SubscriptionPayment
+          
+          attr_accessor :subscription
+          
+          # Optional. The times attribute indicates how many times you will charge the 
+          # customer for a defined subscription payment. A subscription may have multiple 
+          # payment schedules, and the times attribute lets you indicate how many times 
+          # each charge will be assessed. For example, you might charge the customer a 
+          # reduced rate for the first three months of a subscription and then charge the 
+          # standard rate each month thereafter.
+          attr_accessor :times
+          
+          # The maximum amount that you will be allowed to charge the customer, including
+          # tax, for all recurrences (Money instance, required).
+          attr_reader :maximum_charge
+          
+          def initialize(subscription)
+            @subscription = subscription
+          end
+    
+          # Sets the maximum charge for this subscription payment. money must respond to
+          # :cents and :currency as the Money class does.
+          def maximum_charge=(money)
+            if not (money.respond_to?(:cents) and money.respond_to?(:currency)) then
+              raise "Invalid price - does not respond to :cents and :currency - #{money.inspect}."
+            end
+            
+            @maximum_charge = money
+          end
+          
+          def self.create_from_element(subscription, element)
+            result = SubscriptionPayment.new
+            result.subscription = subscription
+            result.times = element.attributes['times'].to_i rescue nil
+            
+            maximum_charge = (element.elements['maximum-charge'].text.to_f * 100).to_i
+            maximum_charge_currency = element.elements['maximum-charge'].attributes['currency']
+            result.maximum_charge = Money.new(maximum_charge, maximum_charge_currency)
+            
+            return result
+          end
+        end
+        
+        class RecurrentItem < Item
+          
+          attr_accessor :subscription
+          
+          def initialize(subscription)
+            @subscription = subscription
+          end
+          
+          def self.create_from_element(element, subscription)
+            item = super(element, nil)
+            
+            result = RecurrentItem.new(subscription)
+            result.description = item.description
+            result.digital_content = item.digital_content
+            result.id = item.id
+            result.name = item.name
+            result.private_data = item.private_data
+            result.quantity = item.quantity
+            result.tax_table = item.tax_table
+            result.unit_price = item.unit_price
+            result.weight = item.weight
+            
+            return result
+          end
+          
         end
       end
     end
