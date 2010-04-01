@@ -42,21 +42,21 @@ namespace :test do
   desc 'Run unit tests on the Google4R::Checkout::* classes.'
   Rake::TestTask.new(:unit) do |t|
     t.libs << 'lib'
-    t.pattern = 'test/unit/*_test.rb'
+    t.test_files = FileList['test/unit/*_test.rb']
     t.verbose = true
   end
 
   desc 'Run integration tests on the Google4R::Checkout::* classes.'
   Rake::TestTask.new(:integration) do |t|
     t.libs << 'lib'
-    t.pattern = 'test/integration/*_test.rb'
+    t.test_files = FileList['test/integration/*_test.rb']
     t.verbose = true
   end
 
   desc 'Run system tests on the Google4R::Checkout::* classes.'
   Rake::TestTask.new(:system) do |t|
     t.libs << 'lib'
-    t.pattern = 'test/system/*_test.rb'
+    t.test_files = FileList['test/system/*_test.rb']
     t.verbose = true
   end
 end
