@@ -362,7 +362,7 @@ module Google4R #:nodoc:
           digital_content_element.add_element('description').text = digital_content.description.to_s
         end
 
-        if digital_content.email_delivery.nil? then
+        if not digital_content.email_delivery.nil? then
           digital_content_element.add_element('email-delivery').text = digital_content.email_delivery.to_s
         end
 
