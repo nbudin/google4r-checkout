@@ -1,5 +1,10 @@
 =google4r-checkout Changelog
 
+== 1.0.6 (2010-04-01)
+
+* Added beta Subscriptions API support.
+* Fixed email-delivery XML generation bug.
+
 == 1.0.5 (2008-9-17)
 
 * Added Order Report API support.  Thanks to Daniel Pirone!
