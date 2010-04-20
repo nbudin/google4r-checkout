@@ -1,5 +1,10 @@
 =google4r-checkout Changelog
 
+== 1.0.6.1 (2010-04-20)
+
+* Fixed issue #14 - will not load on Ruby 1.9.x
+* Added homepage URL to gem specification
+
 == 1.0.6 (2010-04-01)
 
 * Added beta Subscriptions API support.

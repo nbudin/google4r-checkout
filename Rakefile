@@ -64,7 +64,7 @@ end
 #
 # Rubygem creation.
 #
-version = "1.0.6"
+version = "1.0.6.1"
 spec = Gem::Specification.new do |spec|
   spec.platform = Gem::Platform::RUBY
 
@@ -73,6 +73,7 @@ spec = Gem::Specification.new do |spec|
   spec.description = spec.summary
   spec.version = version
   spec.author = "Tony Chan"
+  spec.homepage = "http://code.google.com/p/google-checkout-ruby-sample-code"
 
   spec.test_files = FileList['test/**/*_test.rb'] 
   spec.files      = RUBY_FILES + EXTRA_FILES 
@@ -81,7 +82,6 @@ spec = Gem::Specification.new do |spec|
   
   spec.require_path = 'lib'
   spec.required_ruby_version = '>= 1.8.4'
-  spec.autorequire = ''
   
   spec.add_dependency('money', '>= 1.7.1')
 end
