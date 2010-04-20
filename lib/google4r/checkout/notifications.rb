@@ -1,3 +1,4 @@
+# coding: utf-8
 #--
 # Project:   google4r
 # File:      lib/google4r/checkout/notifications.rb 
