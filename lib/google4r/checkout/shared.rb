@@ -589,14 +589,14 @@ module Google4R #:nodoc:
       # Boolean, true iff the table's standalone attribute is to be set to "true".
       attr_reader :standalone
       
-      # indicates whether tax for the order is calculated using a special process. (boolean, optional)
-      # note that for this attribute to be outputted, it must be set on at least the default tax table
+      # indicates whether tax for the order is calculated using a special process. default "false"
       attr_accessor :merchant_calculated
       
       def initialize(standalone)
         @rules = Array.new
         
         @standalone = standalone
+        @merchant_calculated = false
       end
       
       # Use this method to add a new TaxRule to the table. If you use a block with
