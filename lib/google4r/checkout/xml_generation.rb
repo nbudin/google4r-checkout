@@ -90,7 +90,7 @@ module Google4R #:nodoc:
         super
         self.process_command(@command)
         io = StringIO.new
-        @document.write(io, -1) # TODO: Maybe replace 0 by -1 so no spaces are inserted?
+        @document.write(io, -1)
         return io.string
       end
 
@@ -791,7 +791,7 @@ module Google4R #:nodoc:
         super
         process_results(@merchant_calculation_results.merchant_calculation_results)
         io = StringIO.new
-        @document.write(io, 0) # TODO: Maybe replace 0 by -1 so no spaces are inserted?
+        @document.write(io, -1)
         return io.string
       end
       
