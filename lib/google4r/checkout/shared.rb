@@ -589,6 +589,10 @@ module Google4R #:nodoc:
       # Boolean, true iff the table's standalone attribute is to be set to "true".
       attr_reader :standalone
       
+      # indicates whether tax for the order is calculated using a special process. (boolean, optional)
+      # note that for this attribute to be outputted, it must be set on at least the default tax table
+      attr_accessor :merchant_calculated
+      
       def initialize(standalone)
         @rules = Array.new
         
@@ -855,6 +859,9 @@ module Google4R #:nodoc:
     
     # A class that represents the "flat_rate" shipping method.
     class FlatRateShipping < ShippingMethod
+      # (boolean, optional, default true)
+      attr_accessor :shipping_restrictions_allow_us_po_box
+      
       def initialize
         super
       end
@@ -870,6 +877,12 @@ module Google4R #:nodoc:
       # An Array of excluded areas for address-filters of this shipping instance. Use
       # #create_excluded_area to add to this area but do not change it directly.
       attr_reader :address_filters_excluded_areas
+      
+      # (boolean, optional, default true)
+      attr_accessor :address_filters_allow_us_po_box
+      
+      # (boolean, optional, default true)
+      attr_accessor :shipping_restrictions_allow_us_po_box
       
       def initialize
         super
@@ -889,7 +902,7 @@ module Google4R #:nodoc:
       # === Example
       #
       #    method = FlatRateShipping.new
-      #    method.create_allowed_area(UsCountryArea) do |area|
+      #    method.create_address_filters_allowed_area(UsCountryArea) do |area|
       #       area.area = UsCountryArea::ALL
       #    end
       def create_address_filters_allowed_area(clazz, &block)
@@ -908,11 +921,11 @@ module Google4R #:nodoc:
       # === Example
       #
       #    method = FlatRateShipping.new
-      #    method.create_allowed_area(UsCountryArea) do |area|
+      #    method.create_address_filters_excluded_area(UsCountryArea) do |area|
       #       area.area = UsCountryArea::ALL
       #    end
-      def create_address_filters_allowed_area(clazz, &block)
-        return create_area(:address_filters, :allowed_areas, clazz, &block)
+      def create_address_filters_excluded_area(clazz, &block)
+        return create_area(:address_filters, :excluded_areas, clazz, &block)
       end
     end
     

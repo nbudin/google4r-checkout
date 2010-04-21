@@ -204,10 +204,16 @@ module Google4R #:nodoc:
       # and that all others are alternate tax rules
       def process_tax_tables(tax_tables, parent)
         tax_tables_element = parent.add_element('tax-tables')
-
+        
         # assumes that the first tax table is the default
         default_table = tax_tables.first
         
+        if default_table.merchant_calculated
+          tax_tables_element.add_attribute('merchant-calculated', 'true')
+        else
+          tax_tables_element.add_attribute('merchant-calculated', 'false') 
+        end
+
         default_table_element = tax_tables_element.add_element('default-tax-table')
         rules_element = default_table_element.add_element('tax-rules')
 
@@ -401,6 +407,12 @@ module Google4R #:nodoc:
            shipping.shipping_restrictions_allowed_areas.length > 0 then
           shipping_restrictions_tag = element.add_element('shipping-restrictions')
           
+          if shipping.shipping_restrictions_allow_us_po_box
+            shipping_restrictions_tag.add_element('allow-us-po-box', 'true')
+          else
+            shipping_restrictions_tag.add_element('allow-us-po-box', 'false')
+          end          
+          
           if shipping.shipping_restrictions_allowed_areas.length > 0 then
             allowed_tag = shipping_restrictions_tag.add_element('allowed-areas')
             
@@ -422,6 +434,12 @@ module Google4R #:nodoc:
           if shipping.address_filters_excluded_areas.length + 
              shipping.address_filters_allowed_areas.length > 0 then
             address_filters_tag = element.add_element('address-filters')
+            
+            if shipping.address_filters_allow_us_po_box
+              address_filters_tag.add_element('allow-us-po-box', 'true')
+            else
+              address_filters_tag.add_element('allow-us-po-box', 'false')
+            end
             
             if shipping.address_filters_allowed_areas.length > 0 then
               allowed_tag = address_filters_tag.add_element('allowed-areas')

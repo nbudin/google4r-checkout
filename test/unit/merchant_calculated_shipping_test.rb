@@ -43,6 +43,7 @@ class Google4R::Checkout::MerchantCalculatedShippingTest < Test::Unit::TestCase
     [ :name, :name=, :price, :price=, 
       :shipping_restrictions_allowed_areas, :shipping_restrictions_excluded_areas,
       :address_filters_allowed_areas, :address_filters_excluded_areas,
+      :address_filters_allow_us_po_box, :shipping_restrictions_allow_us_po_box,
       :create_allowed_area, :create_excluded_area, :create_area
     ].each do |symbol|
       assert_respond_to @shipping, symbol

@@ -44,17 +44,23 @@ class Google4R::Checkout::TaxTableTest < Test::Unit::TestCase
     assert_respond_to @table, :name
     assert_respond_to @table, :name=
     assert_respond_to @table, :standalone
+    assert_respond_to @table, :merchant_calculated
+    assert_respond_to @table, :merchant_calculated=
   end
   
   def test_initialized_correctly
     assert_nil @table.name
     assert_equal [], @table.rules
     assert_equal false, @table.standalone
+    assert_equal false, @table.merchant_calculated
   end
   
   def test_accessors_work_correctly
     @table.name = "name"
     assert_equal "name", @table.name
+    
+    @table.merchant_calculated = true
+    assert_equal true, @table.merchant_calculated
   end
   
   def test_create_rule_works_correctly_with_block

@@ -43,7 +43,8 @@ class Google4R::Checkout::FlatRateShippingMethodTest < Test::Unit::TestCase
   def test_flat_rate_shipping_method_behaves_correctly
     [ :name, :name=, :price, :price=, 
       :shipping_restrictions_allowed_areas, :shipping_restrictions_excluded_areas,
-      :create_allowed_area, :create_excluded_area, :create_area
+      :create_allowed_area, :create_excluded_area, :create_area,
+      :shipping_restrictions_allow_us_po_box
     ].each do |symbol|
       assert_respond_to @shipping, symbol
     end
