@@ -436,8 +436,8 @@ module Google4R #:nodoc:
              shipping.address_filters_allowed_areas.length > 0 then
             address_filters_tag = element.add_element('address-filters')
             
-            allow_us_po_box = shipping_restrictions_tag.add_element('allow-us-po-box')
-            if shipping.shipping_restrictions_allow_us_po_box
+            allow_us_po_box = address_filters_tag.add_element('allow-us-po-box')
+            if shipping.address_filters_allow_us_po_box
               allow_us_po_box.text = 'true'
             else
               allow_us_po_box.text = 'false'
