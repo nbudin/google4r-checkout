@@ -1,5 +1,16 @@
 =google4r-checkout Changelog
 
+== 1.1.beta1 (2010-04-21)
+
+* Full Ruby 1.9.x compatibility
+* Major overhaul of automated test suite
+* Support for merchant-calculated and allow-us-po-box tags
+* Update to Money library version 2.3 (beware - this may break things if you expect the currency to be a string)
+* Verify that we are actually talking to Google's servers when sending checkout commands 
+* Generated XML will no longer include extra whitespace, to help comply with Google's XML schema
+* Use BigDecimal instead of Float for all calculations due to weird rounding errors in Ruby's standard library
+* Fixed deprecation warnings 
+
 == 1.0.6.1 (2010-04-20)
 
 * Fixed issue #14 - will not load on Ruby 1.9.x
