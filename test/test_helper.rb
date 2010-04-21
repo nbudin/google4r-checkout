@@ -33,7 +33,6 @@ require 'test/unit'
 
 require 'rubygems'
 require 'mocha'
-require 'stubba'
 
 class Array
   # Returns the "power set" for this Array. This means that an array with all
