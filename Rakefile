@@ -35,10 +35,23 @@ end
 # Test, test, test! I love saying the word "test"!
 #
 
+desc 'Run all tests on the Google4R::Checkout::* classes.'
+task :test => ["test:all"]
+
 namespace :test do
   desc 'Run all tests on the Google4R::Checkout::* classes.'
-  task :all => [ :integration, :unit, :system ]
-
+  task :all do
+    errors = %w(unit integration system).collect do |task|
+      begin
+        Rake::Task["test:#{task}"].invoke
+        nil
+      rescue => e
+        task
+      end
+    end.compact
+    abort "Errors running #{errors.join(", ")}!" if errors.any? 
+  end  
+  
   desc 'Run unit tests on the Google4R::Checkout::* classes.'
   Rake::TestTask.new(:unit) do |t|
     t.libs << 'lib'
