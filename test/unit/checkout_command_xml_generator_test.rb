@@ -159,7 +159,6 @@ class Google4R::Checkout::CheckoutCommandXmlGeneratorTest < Test::Unit::TestCase
     
     xml_str = @generator.generate
     assert_xml_validates_against_xml_schema(@schema_path, xml_str)
-    #assert_string_equals_file_contents(@expected_path, xml_str)
     assert_google_checkout_diagnose_returns_no_warnings(xml_str)
   end
   
@@ -213,10 +212,5 @@ class Google4R::Checkout::CheckoutCommandXmlGeneratorTest < Test::Unit::TestCase
       end
       
       tmpfile.close!
-    end
-    
-    def assert_string_equals_file_contents(expected_path, xml_str)
-      file_contents = File.open(expected_path, 'r') {|f| f.read}
-      assert_strings_equal file_contents, xml_str
     end
 end

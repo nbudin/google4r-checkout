@@ -99,48 +99,4 @@ class Test::Unit::TestCase
   def assert_no_command_element_exists(selector, command, msg=nil)
     assert_no_element_exists("#{command_selector(command)} #{selector}", command.to_xml, msg)
   end
-  
-  # Perform assertion on strings. The advantage of this method over the normal assert_equal
-  # method is that it displays the exact mismatch location and is aware of multi line strings.
-  # 
-  # This comes at a performance cost since we have to compare character wise.
-  #
-  # === Example
-  #
-  #   assert_string_equals("1\n2", "1\3", "Test Message!")
-  #   
-  #   Test Message!
-  #   <1
-  #   2> expected but was
-  #   <1
-  #   3>.Actual value is a real prefix of the expected value!
-  def assert_strings_equal(expected, actual, msg=nil)
-    return true if expected == actual
-    
-    message = msg.nil? ? '' : "#{msg}\n"
-    message += %Q{<#{expected}> expected but was
-<#{actual}>.}
-    
-    expected_lines, actual_lines = expected.split(/\r\n|\n|\r/), actual.split(/\r\n|\n|\r/)
-    
-    1.upto([ expected_lines.length, actual_lines.length ].min) do |i|
-      next if expected_lines[i] == actual_lines[i]
-      
-      assert_not_nil actual_lines[i], "Line <#{i+1}> was nil"
-      
-      # expected line != actual line
-      assert_equal expected_lines[i].length, actual_lines[i].length, "Line <#{i+1}> expected to be <#{expected_lines[i].length}> bytes long but was <#{actual_lines[i].length}> bytes long."
-      
-      1.upto(expected_lines[i].length) do |j|
-        assert_equal expected_lines[i][j], actual_lines[i][j], "Character <#{j}> of line <#{i+1}> expected to be <#{expected_lines[i][j]}> but was <#{actual_lines[i][j]}.>" 
-      end
-    end
-    
-    # if we reach here then one of expected and actual is a prefix of the other
-    if expected.length < actual.length then
-      flunk "Expected value is a real prefix of the actual value!"
-    else
-      flunk "Actual value is a real prefix of the expected value!"
-    end
-  end
 end
