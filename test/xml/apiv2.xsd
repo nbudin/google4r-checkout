@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2009 Google Inc. All Rights Reserved.
+  Copyright 2006 Google Inc. All Rights Reserved.
 
+  Google Confidential
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://checkout.google.com/schema/2" xsi:schemaLocation="http://www.w3.org/2001/XMLSchema http://www.w3.org/2001/XMLSchema.xsd" targetNamespace="http://checkout.google.com/schema/2" elementFormDefault="qualified" attributeFormDefault="unqualified">
   <xs:complexType name="Hello" />
@@ -17,7 +18,7 @@
   <xs:complexType name="CheckoutShoppingCart">
     <xs:all>
       <xs:element name="shopping-cart" type="tns:ShoppingCart" />
-      <xs:element name="checkout-flow-support">
+      <xs:element name="checkout-flow-support" minOccurs="0">
         <xs:complexType>
           <xs:choice>
             <xs:element name="merchant-checkout-flow-support" type="tns:MerchantCheckoutFlowSupport" />
@@ -47,6 +48,7 @@
               <xs:element name="flat-rate-shipping" type="tns:FlatRateShipping" />
               <xs:element name="merchant-calculated-shipping" type="tns:MerchantCalculatedShipping" />
               <xs:element name="pickup" type="tns:Pickup" />
+              <xs:element name="carrier-calculated-shipping" type="tns:CarrierCalculatedShipping" />
             </xs:choice>
           </xs:sequence>
         </xs:complexType>
@@ -110,11 +112,30 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="buyer-messages" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="gift-message" type="tns:GiftMessage" />
+              <xs:element name="include-gift-receipt" type="xs:string" />
+              <xs:element name="delivery-instructions" type="tns:DeliveryInstructions" />
+              <xs:element name="special-instructions" type="tns:SpecialInstructions" />
+              <xs:element name="special-requests" type="tns:SpecialRequests" />
+              <xs:element name="in-honor-of-message" type="tns:InHonorOfMessage" />
+              <xs:element name="in-tribute-of-message" type="tns:InTributeOfMessage" />
+              <xs:element name="in-memory-of-message" type="tns:InMemoryOfMessage" />
+              <xs:element name="buyer-note" type="tns:BuyerNote" />
+            </xs:choice>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:all>
   </xs:complexType>
   
   <xs:complexType name="Item">
     <xs:all>
+      <xs:element name="item-weight" type="tns:ItemWeight" minOccurs="0" />
+      <xs:element name="digital-content" type="tns:DigitalContent" minOccurs="0" />
       <xs:element name="tax-table-selector" minOccurs="0">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -142,6 +163,329 @@
     <xs:all>
       <xs:element name="good-until-date" type="xs:dateTime" />
     </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="ItemWeight">
+    <xs:attribute name="value" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:minInclusive value="0.0" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="GiftMessage">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="from" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="to" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="DeliveryInstructions">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="SpecialInstructions">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="SpecialRequests">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="InHonorOfMessage">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="from" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="to" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="InTributeOfMessage">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="from" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="to" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="InMemoryOfMessage">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="from" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="to" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:minLength value="0" />
+              <xs:maxLength value="100" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+  
+  <xs:complexType name="BuyerNote">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="max-chars" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="1000" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-line-length" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="50" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="max-lines" use="optional">
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="1" />
+              <xs:maxInclusive value="20" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
   
   <xs:complexType name="USStateArea">
@@ -178,6 +522,7 @@
       <xs:element name="fax" type="xs:string" minOccurs="0" />
       <xs:element name="address1" type="xs:string" />
       <xs:element name="address2" type="xs:string" minOccurs="0" />
+      <xs:element name="structured-name" type="tns:StructuredName" minOccurs="0" />
       <xs:element name="country-code" type="xs:string" />
       <xs:element name="region" type="xs:string" />
       <xs:element name="city" type="xs:string" />
@@ -286,6 +631,65 @@
     </xs:attribute>
   </xs:complexType>
   
+  <xs:complexType name="CarrierCalculatedShipping">
+    <xs:all>
+      <xs:element name="shipping-packages">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="shipping-package" type="tns:ShippingPackage" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="carrier-calculated-shipping-options">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="carrier-calculated-shipping-option" type="tns:CarrierCalculatedShippingOption" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="CarrierCalculatedShippingOption">
+    <xs:all>
+      <xs:element name="price">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:restriction base="tns:Money">
+              <xs:minInclusive value="0.0" />
+            </xs:restriction>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="shipping-company" type="xs:token" />
+      <xs:element name="shipping-type" type="xs:string" />
+      <xs:element name="carrier-pickup" type="xs:token" minOccurs="0" />
+      <xs:element name="additional-fixed-charge" type="tns:Money" minOccurs="0" />
+      <xs:element name="additional-variable-charge-percent" type="xs:double" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="ShippingPackage">
+    <xs:all>
+      <xs:element name="length" type="tns:Dimension" minOccurs="0" />
+      <xs:element name="width" type="tns:Dimension" minOccurs="0" />
+      <xs:element name="height" type="tns:Dimension" minOccurs="0" />
+      <xs:element name="ship-from" type="tns:AnonymousAddress" />
+      <xs:element name="delivery-address-category" type="xs:token" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="Dimension">
+    <xs:attribute name="value" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:minInclusive value="0.0" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:token" use="required" />
+  </xs:complexType>
+  
   <xs:complexType name="ChargeOrderRequest">
     <xs:all>
       <xs:element name="amount" type="tns:Money" minOccurs="0" />
@@ -295,8 +699,8 @@
   
   <xs:complexType name="RefundOrderRequest">
     <xs:all>
-      <xs:element name="amount" type="tns:Money" minOccurs="0" />
       <xs:element name="comment" type="xs:string" minOccurs="0" />
+      <xs:element name="amount" type="tns:Money" minOccurs="0" />
       <xs:element name="reason" type="xs:string" />
     </xs:all>
     <xs:attribute name="google-order-number" type="xs:token" use="required" />
@@ -335,8 +739,8 @@
   
   <xs:complexType name="SendBuyerMessageRequest">
     <xs:all>
-      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
       <xs:element name="message" type="xs:string" />
+      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
     </xs:all>
     <xs:attribute name="google-order-number" type="xs:token" use="required" />
   </xs:complexType>
@@ -363,7 +767,24 @@
   <xs:complexType name="TrackingData">
     <xs:all>
       <xs:element name="carrier" type="xs:string" />
-      <xs:element name="tracking-number" type="xs:string" />
+      <xs:element name="tracking-number" type="xs:string" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="DigitalContent">
+    <xs:all>
+      <xs:element name="key" type="xs:string" minOccurs="0" />
+      <xs:element name="url" type="xs:anyURI" minOccurs="0" />
+      <xs:element name="email-delivery" type="xs:boolean" minOccurs="0" />
+      <xs:element name="description" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="1024" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="display-disposition" type="xs:token" minOccurs="0" />
     </xs:all>
   </xs:complexType>
   
@@ -403,7 +824,6 @@
         </xs:complexType>
       </xs:element>
     </xs:all>
-    <xs:attribute name="standalone" type="xs:boolean" use="optional" />
     <xs:attribute name="name" use="required">
       <xs:simpleType>
         <xs:restriction base="xs:string">
@@ -412,19 +832,20 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
+    <xs:attribute name="standalone" type="xs:boolean" use="optional" />
   </xs:complexType>
   
   <xs:complexType name="DefaultTaxRule">
     <xs:all>
       <xs:element name="shipping-taxed" type="xs:boolean" minOccurs="0" />
-      <xs:element name="rate">
+      <xs:element name="rate" minOccurs="0">
         <xs:simpleType>
           <xs:restriction base="xs:double">
             <xs:minInclusive value="0.0" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="tax-area">
+      <xs:element name="tax-area" minOccurs="0">
         <xs:complexType>
           <xs:choice>
             <xs:element name="us-state-area" type="tns:USStateArea" />
@@ -435,19 +856,32 @@
           </xs:choice>
         </xs:complexType>
       </xs:element>
+      <xs:element name="tax-areas" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="us-state-area" type="tns:USStateArea" />
+              <xs:element name="us-zip-area" type="tns:USZipArea" />
+              <xs:element name="us-country-area" type="tns:USCountryArea" />
+              <xs:element name="postal-area" type="tns:PostalArea" />
+              <xs:element name="world-area" type="tns:WorldArea" />
+            </xs:choice>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:all>
   </xs:complexType>
   
   <xs:complexType name="AlternateTaxRule">
     <xs:all>
-      <xs:element name="rate">
+      <xs:element name="rate" minOccurs="0">
         <xs:simpleType>
           <xs:restriction base="xs:double">
             <xs:minInclusive value="0.0" />
           </xs:restriction>
         </xs:simpleType>
       </xs:element>
-      <xs:element name="tax-area">
+      <xs:element name="tax-area" minOccurs="0">
         <xs:complexType>
           <xs:choice>
             <xs:element name="us-state-area" type="tns:USStateArea" />
@@ -456,6 +890,19 @@
             <xs:element name="postal-area" type="tns:PostalArea" />
             <xs:element name="world-area" type="tns:WorldArea" />
           </xs:choice>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="tax-areas" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="us-state-area" type="tns:USStateArea" />
+              <xs:element name="us-zip-area" type="tns:USZipArea" />
+              <xs:element name="us-country-area" type="tns:USCountryArea" />
+              <xs:element name="postal-area" type="tns:PostalArea" />
+              <xs:element name="world-area" type="tns:WorldArea" />
+            </xs:choice>
+          </xs:sequence>
         </xs:complexType>
       </xs:element>
     </xs:all>
@@ -483,12 +930,13 @@
           </xs:simpleContent>
         </xs:complexType>
       </xs:element>
-      <xs:element name="shipping">
+      <xs:element name="shipping" minOccurs="0">
         <xs:complexType>
           <xs:choice>
             <xs:element name="merchant-calculated-shipping-adjustment" type="tns:MerchantCalculatedShippingAdjustment" />
             <xs:element name="flat-rate-shipping-adjustment" type="tns:FlatRateShippingAdjustment" />
             <xs:element name="pickup-shipping-adjustment" type="tns:PickupShippingAdjustment" />
+            <xs:element name="carrier-calculated-shipping-adjustment" type="tns:CarrierCalculatedShippingAdjustment" />
           </xs:choice>
         </xs:complexType>
       </xs:element>
@@ -541,83 +989,112 @@
     </xs:all>
   </xs:complexType>
   
+  <xs:complexType name="CarrierCalculatedShippingAdjustment">
+    <xs:all>
+      <xs:element name="shipping-name" type="xs:string" />
+      <xs:element name="shipping-cost">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:restriction base="tns:Money">
+              <xs:minInclusive value="0.0" />
+            </xs:restriction>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  
   <xs:complexType name="NewOrderNotification">
     <xs:all>
+      <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="shopping-cart" type="tns:ShoppingCart" />
       <xs:element name="google-order-number" type="xs:token" />
+      <xs:element name="order-adjustment" type="tns:OrderAdjustment" />
       <xs:element name="buyer-shipping-address" type="tns:Address" />
       <xs:element name="buyer-billing-address" type="tns:Address" />
       <xs:element name="buyer-marketing-preferences" type="tns:BuyerMarketingPreferences" />
-      <xs:element name="order-adjustment" type="tns:OrderAdjustment" />
+      <xs:element name="promotions" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="promotion" type="tns:Promotion" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="order-total" type="tns:Money" />
       <xs:element name="fulfillment-order-state" type="tns:FulfillmentOrderState" />
       <xs:element name="financial-order-state" type="tns:FinancialOrderState" />
       <xs:element name="buyer-id" type="xs:long" />
-      <xs:element name="timestamp" type="xs:dateTime" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
   
   <xs:complexType name="OrderStateChangeNotification">
     <xs:all>
-      <xs:element name="google-order-number" type="xs:token" />
       <xs:element name="new-fulfillment-order-state" type="tns:FulfillmentOrderState" />
       <xs:element name="new-financial-order-state" type="tns:FinancialOrderState" />
       <xs:element name="previous-fulfillment-order-state" type="tns:FulfillmentOrderState" />
       <xs:element name="previous-financial-order-state" type="tns:FinancialOrderState" />
       <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="reason" type="xs:string" minOccurs="0" />
+      <xs:element name="google-order-number" type="xs:token" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
   
   <xs:complexType name="ChargeAmountNotification">
     <xs:all>
+      <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="google-order-number" type="xs:token" />
       <xs:element name="latest-charge-amount" type="tns:Money" />
+      <xs:element name="latest-charge-fee" type="tns:FeeStructure" minOccurs="0" />
       <xs:element name="total-charge-amount" type="tns:Money" />
-      <xs:element name="timestamp" type="xs:dateTime" />
+      <xs:element name="latest-promotion-charge-amount" type="tns:Money" minOccurs="0" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
   
   <xs:complexType name="ChargebackAmountNotification">
     <xs:all>
+      <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="google-order-number" type="xs:token" />
       <xs:element name="latest-chargeback-amount" type="tns:Money" />
+      <xs:element name="latest-fee-refund-amount" type="tns:Money" minOccurs="0" />
+      <xs:element name="latest-chargeback-fee-amount" type="tns:Money" minOccurs="0" />
       <xs:element name="total-chargeback-amount" type="tns:Money" />
-      <xs:element name="timestamp" type="xs:dateTime" />
+      <xs:element name="latest-promotion-chargeback-amount" type="tns:Money" minOccurs="0" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
   
   <xs:complexType name="RefundAmountNotification">
     <xs:all>
+      <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="google-order-number" type="xs:token" />
+      <xs:element name="latest-fee-refund-amount" type="tns:Money" minOccurs="0" />
       <xs:element name="latest-refund-amount" type="tns:Money" />
       <xs:element name="total-refund-amount" type="tns:Money" />
-      <xs:element name="timestamp" type="xs:dateTime" />
+      <xs:element name="latest-promotion-refund-amount" type="tns:Money" minOccurs="0" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
   
   <xs:complexType name="RiskInformationNotification">
     <xs:all>
+      <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="google-order-number" type="xs:token" />
       <xs:element name="risk-information" type="tns:RiskInformation" />
-      <xs:element name="timestamp" type="xs:dateTime" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
   
   <xs:complexType name="AuthorizationAmountNotification">
     <xs:all>
+      <xs:element name="timestamp" type="xs:dateTime" />
       <xs:element name="google-order-number" type="xs:token" />
       <xs:element name="avs-response" type="xs:string" />
       <xs:element name="cvn-response" type="xs:string" />
       <xs:element name="authorization-amount" type="tns:Money" />
       <xs:element name="authorization-expiration-date" type="xs:dateTime" />
-      <xs:element name="timestamp" type="xs:dateTime" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
@@ -636,14 +1113,47 @@
     </xs:all>
   </xs:complexType>
   
+  <xs:complexType name="FeeStructure">
+    <xs:all>
+      <xs:element name="total" type="tns:Money" />
+      <xs:element name="percentage" type="xs:double" />
+      <xs:element name="flat" type="tns:Money" />
+    </xs:all>
+  </xs:complexType>
+  
   <xs:complexType name="BuyerMarketingPreferences">
     <xs:all>
       <xs:element name="email-allowed" type="xs:boolean" />
     </xs:all>
   </xs:complexType>
   
+  <xs:complexType name="StructuredName">
+    <xs:all>
+      <xs:element name="first-name" type="xs:string" />
+      <xs:element name="last-name" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="Promotion">
+    <xs:all>
+      <xs:element name="name" type="xs:string" />
+      <xs:element name="id" type="xs:long" />
+      <xs:element name="description" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:minLength value="0" />
+            <xs:maxLength value="1024" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="total-amount" type="tns:Money" />
+    </xs:all>
+  </xs:complexType>
+  
   <xs:complexType name="GiftCertificateAdjustment">
     <xs:all>
+      <xs:element name="message" type="xs:string" minOccurs="0" />
+      <xs:element name="code" type="xs:string" />
       <xs:element name="calculated-amount" minOccurs="0">
         <xs:complexType>
           <xs:simpleContent>
@@ -662,13 +1172,13 @@
           </xs:simpleContent>
         </xs:complexType>
       </xs:element>
-      <xs:element name="code" type="xs:string" />
-      <xs:element name="message" type="xs:string" minOccurs="0" />
     </xs:all>
   </xs:complexType>
   
   <xs:complexType name="CouponAdjustment">
     <xs:all>
+      <xs:element name="message" type="xs:string" minOccurs="0" />
+      <xs:element name="code" type="xs:string" />
       <xs:element name="calculated-amount" minOccurs="0">
         <xs:complexType>
           <xs:simpleContent>
@@ -687,8 +1197,6 @@
           </xs:simpleContent>
         </xs:complexType>
       </xs:element>
-      <xs:element name="code" type="xs:string" />
-      <xs:element name="message" type="xs:string" minOccurs="0" />
     </xs:all>
   </xs:complexType>
   
@@ -699,6 +1207,8 @@
   <xs:complexType name="CouponResult">
     <xs:all>
       <xs:element name="valid" type="xs:boolean" />
+      <xs:element name="message" type="xs:string" minOccurs="0" />
+      <xs:element name="code" type="xs:string" />
       <xs:element name="calculated-amount" minOccurs="0">
         <xs:complexType>
           <xs:simpleContent>
@@ -708,14 +1218,14 @@
           </xs:simpleContent>
         </xs:complexType>
       </xs:element>
-      <xs:element name="code" type="xs:string" />
-      <xs:element name="message" type="xs:string" minOccurs="0" />
     </xs:all>
   </xs:complexType>
   
   <xs:complexType name="GiftCertificateResult">
     <xs:all>
       <xs:element name="valid" type="xs:boolean" />
+      <xs:element name="message" type="xs:string" minOccurs="0" />
+      <xs:element name="code" type="xs:string" />
       <xs:element name="calculated-amount" minOccurs="0">
         <xs:complexType>
           <xs:simpleContent>
@@ -725,8 +1235,6 @@
           </xs:simpleContent>
         </xs:complexType>
       </xs:element>
-      <xs:element name="code" type="xs:string" />
-      <xs:element name="message" type="xs:string" minOccurs="0" />
     </xs:all>
   </xs:complexType>
   
@@ -783,6 +1291,7 @@
   
   <xs:complexType name="Result">
     <xs:all>
+      <xs:element name="shippable" type="xs:boolean" minOccurs="0" />
       <xs:element name="total-tax" minOccurs="0">
         <xs:complexType>
           <xs:simpleContent>
@@ -801,7 +1310,6 @@
           </xs:simpleContent>
         </xs:complexType>
       </xs:element>
-      <xs:element name="shippable" type="xs:boolean" minOccurs="0" />
       <xs:element name="merchant-code-results" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -831,7 +1339,6 @@
   
   <xs:complexType name="ErrorResponse">
     <xs:all>
-      <xs:element name="error-message" type="xs:string" />
       <xs:element name="warning-messages" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -839,6 +1346,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="error-message" type="xs:string" />
     </xs:all>
     <xs:attribute name="serial-number" type="xs:string" use="required" />
   </xs:complexType>
@@ -860,6 +1368,158 @@
   <xs:complexType name="OrderProcessingSupport">
     <xs:all>
       <xs:element name="request-initial-auth-details" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="OrderListRequest">
+    <xs:all>
+      <xs:element name="financial-state" type="tns:FinancialOrderState" minOccurs="0" />
+      <xs:element name="fulfillment-state" type="tns:FulfillmentOrderState" minOccurs="0" />
+      <xs:element name="date-time-zone" type="xs:string" minOccurs="0" />
+    </xs:all>
+    <xs:attribute name="start-date" type="xs:dateTime" use="required" />
+    <xs:attribute name="end-date" type="xs:dateTime" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="ShipItemsRequest">
+    <xs:all>
+      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
+      <xs:element name="item-shipping-information-list">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item-shipping-information" type="tns:ItemShippingInformation" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="google-order-number" type="xs:token" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="ResetItemsShippingInformationRequest">
+    <xs:all>
+      <xs:element name="item-ids">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item-id" type="tns:ItemId" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+    <xs:attribute name="google-order-number" type="xs:token" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="CancelItemsRequest">
+    <xs:all>
+      <xs:element name="comment" type="xs:string" minOccurs="0" />
+      <xs:element name="reason" type="xs:string" />
+      <xs:element name="item-ids">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item-id" type="tns:ItemId" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+    <xs:attribute name="google-order-number" type="xs:token" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="ReturnItemsRequest">
+    <xs:all>
+      <xs:element name="item-ids">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item-id" type="tns:ItemId" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+    <xs:attribute name="google-order-number" type="xs:token" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="BackorderItemsRequest">
+    <xs:all>
+      <xs:element name="item-ids">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="item-id" type="tns:ItemId" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="send-email" type="xs:boolean" minOccurs="0" />
+    </xs:all>
+    <xs:attribute name="google-order-number" type="xs:token" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="ItemId">
+    <xs:all>
+      <xs:element name="merchant-item-id" type="xs:string" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="ItemShippingInformation">
+    <xs:all>
+      <xs:element name="item-id" type="tns:ItemId" />
+      <xs:element name="tracking-data-list" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="tracking-data" type="tns:TrackingData" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="NotificationHistoryResponse">
+    <xs:all>
+      <xs:element name="notifications">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="new-order-notification" type="tns:NewOrderNotification" />
+              <xs:element name="order-state-change-notification" type="tns:OrderStateChangeNotification" />
+              <xs:element name="charge-amount-notification" type="tns:ChargeAmountNotification" />
+              <xs:element name="chargeback-amount-notification" type="tns:ChargebackAmountNotification" />
+              <xs:element name="refund-amount-notification" type="tns:RefundAmountNotification" />
+              <xs:element name="risk-information-notification" type="tns:RiskInformationNotification" />
+              <xs:element name="authorization-amount-notification" type="tns:AuthorizationAmountNotification" />
+            </xs:choice>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="next-page-token" type="xs:string" minOccurs="0" />
+      <xs:element name="invalid-order-numbers" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="google-order-number" type="xs:token" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="serial-number" type="xs:string" use="required" />
+  </xs:complexType>
+  
+  <xs:complexType name="NotificationHistoryRequest">
+    <xs:all>
+      <xs:element name="next-page-token" type="xs:string" minOccurs="0" />
+      <xs:element name="start-time" type="xs:dateTime" minOccurs="0" />
+      <xs:element name="end-time" type="xs:dateTime" minOccurs="0" />
+      <xs:element name="order-numbers" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="google-order-number" type="xs:token" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="notification-types" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="notification-type" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:all>
   </xs:complexType>
   
@@ -991,6 +1651,22 @@
   <xs:element name="error" type="tns:ErrorResponse" />
   
   <xs:element name="diagnosis" type="tns:DiagnoseResponse" />
+  
+  <xs:element name="order-list-request" type="tns:OrderListRequest" />
+  
+  <xs:element name="ship-items" type="tns:ShipItemsRequest" />
+  
+  <xs:element name="reset-items-shipping-information" type="tns:ResetItemsShippingInformationRequest" />
+  
+  <xs:element name="cancel-items" type="tns:CancelItemsRequest" />
+  
+  <xs:element name="return-items" type="tns:ReturnItemsRequest" />
+  
+  <xs:element name="backorder-items" type="tns:BackorderItemsRequest" />
+  
+  <xs:element name="notification-history-response" type="tns:NotificationHistoryResponse" />
+  
+  <xs:element name="notification-history-request" type="tns:NotificationHistoryRequest" />
   
 </xs:schema>
 
