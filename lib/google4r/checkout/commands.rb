@@ -110,6 +110,15 @@ module Google4R #:nodoc:
         https.cert_store = self.class.x509_store
         https.verify_mode = OpenSSL::SSL::VERIFY_PEER
         https.verify_depth = 5
+        https.verify_callback = Proc.new do |ok, ctx|
+          domain = ctx.chain.first.subject.to_a.select { |part| part.first == "CN" }.first[1]
+          
+          domain == if frontend.configuration[:use_sandbox]
+            "sandbox.google.com"
+          else
+            "checkout.google.com"
+          end
+        end
 
         # Send the request to Google.
         result = https.request(request, self.to_xml)
