@@ -172,7 +172,32 @@ class Google4R::Checkout::MerchantCalculationResultsTest < Test::Unit::TestCase
       result.create_merchant_code_result(@gift_certificate_result)
     end
 
-    # perform the assertions
-    assert_strings_equal @xml_str, @results.to_xml
+    xml = @results.to_xml
+    @results.merchant_calculation_results.each do |result|
+      selector = "merchant-calculation-results > results"
+      selector << " > result[address-id='#{result.address_id}'][shipping-name='#{result.shipping_name}']"
+      
+      assert_element_text_equals(result.shipping_rate.to_s, 
+        "#{selector} > shipping-rate[currency='#{result.shipping_rate.currency.iso_code}']", xml)
+      assert_element_text_equals(result.shippable ? "true" : "false", "#{selector} > shippable", xml)
+      
+      selector << " > merchant-code-results"
+      
+      cr_selector = "#{selector} > coupon-results"
+      cr = result.merchant_code_results.select { |r| r.kind_of? CouponResult }.first
+      assert_element_text_equals(cr.valid ? "true" : "false", "#{cr_selector} > valid", xml)
+      assert_element_text_equals(cr.code, "#{cr_selector} > code", xml)
+      assert_element_text_equals(cr.calculated_amount.to_s, 
+        "#{cr_selector} > calculated_amount[currency='#{cr.calculated_amount.currency.iso_code}']", xml)
+      assert_element_text_equals(cr.message, "#{cr_selector} > message", xml)
+      
+      gc_selector = "#{selector} > gift-certificate-results"
+      gc = result.merchant_code_results.select { |r| r.kind_of? GiftCertificateResult }.first
+      assert_element_text_equals(gc.valid ? "true" : "false", "#{gc_selector} > valid", xml)
+      assert_element_text_equals(gc.code, "#{gc_selector} > code", xml)
+      assert_element_text_equals(gc.calculated_amount.to_s, 
+        "#{gc_selector} > calculated_amount[currency='#{gc.calculated_amount.currency.iso_code}']", xml)
+      assert_element_text_equals(gc.message, "#{gc_selector} > message", xml)
+    end
   end
  end

@@ -120,7 +120,7 @@ class Google4R::Checkout::MerchantCalculationCallbackTest < Test::Unit::TestCase
     expect.with { |element, owner| element.name == 'shopping-cart' and owner.kind_of?(MerchantCalculationCallback) }
     
     expect = AnonymousAddress.stubs(:create_from_element)
-    expect.times(1).returns(:anonymous_address, :anonymous_address2)
+    expect.times(2).returns(:anonymous_address, :anonymous_address2)
     expect.with { |element| element.name == 'anonymous-address' }
     
     # Create the new notification.

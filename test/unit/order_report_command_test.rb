@@ -43,13 +43,6 @@ class Google4R::Checkout::OrderReportCommandTest < Test::Unit::TestCase
     @command.financial_state = 'CHARGED'
     @command.fulfillment_state = 'NEW'
     @command.date_time_zone = 'America/New_York'
-    
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<order-list-request end-date='2007-09-30T23:59:59' start-date='2007-09-01T00:00:00' xmlns='http://checkout.google.com/schema/2'>
-  <financial-state>CHARGED</financial-state>
-  <fulfillment-state>NEW</fulfillment-state>
-  <date-time-zone>America/New_York</date-time-zone>
-</order-list-request>}
   end
 
   def test_behaves_correctly
@@ -62,7 +55,12 @@ class Google4R::Checkout::OrderReportCommandTest < Test::Unit::TestCase
   end
 
   def test_to_xml
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    selector = "order-list-request[start-date='#{@command.start_date}'][end-date='#{@command.end_date}']"
+    xml = @command.to_xml
+    
+    assert_element_text_equals(@command.financial_state, "#{selector} > financial-state", xml)
+    assert_element_text_equals(@command.fulfillment_state, "#{selector} > fulfillment-state", xml)
+    assert_element_text_equals(@command.date_time_zone, "#{selector} > date-time-zone", xml)
   end
 
   def test_accessors

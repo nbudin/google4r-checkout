@@ -42,18 +42,6 @@ class Google4R::Checkout::RefundOrderCommandTest < Test::Unit::TestCase
     @command.amount = Money.new(1000, 'USD')
     @command.comment = 'Discount for inconvenience; ship replacement item'
     @command.reason = 'Damaged Merchandise'
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<refund-order xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <amount currency='USD'>10.00</amount>
-  <comment>Discount for inconvenience; ship replacement item</comment>
-  <reason>Damaged Merchandise</reason>
-</refund-order>}
-
-    @sample_reason_only=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<refund-order xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <reason>Damaged Merchandise</reason>
-</refund-order>}
   end
   
   def test_behaves_correctly
@@ -62,10 +50,13 @@ class Google4R::Checkout::RefundOrderCommandTest < Test::Unit::TestCase
     end
   end
 
-  def test_xml_with_amount
+  def test_xml_without_amount
     @command.amount = nil
     @command.comment = nil
-    assert_strings_equal(@sample_reason_only, @command.to_xml)
+    
+    assert_command_element_text_equals(@command.reason, "> reason", @command)
+    assert_no_command_element_exists("amount", @command)
+    assert_no_command_element_exists("comment", @command)
   end
 
   def test_accessors
@@ -76,7 +67,9 @@ class Google4R::Checkout::RefundOrderCommandTest < Test::Unit::TestCase
   end
 
   def test_xml_generation
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals(@command.reason, "> reason", @command)
+    assert_command_element_text_equals(@command.amount, "> amount[currency='USD']", @command)
+    assert_command_element_text_equals(@command.comment, "> comment", @command)
   end
 
   def test_to_xml_does_not_raise_exception

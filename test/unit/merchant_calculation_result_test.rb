@@ -37,14 +37,8 @@ class Google4R::Checkout::MerchantCalculationResultTest < Test::Unit::TestCase
 
   def setup
     # Build up some Mocha expectations.
-    expect = CouponResult.stubs(:new)
-    expect.times(1).returns(:coupon_result)
-    
-    expect = GiftCertificateResult.stubs(:new)
-    expect.times(1).returns(:gift_certificate_result)
-    
     expect = Money.stubs(:new)
-    expect.times(1).returns(:shipping_rate, :total_tax)
+    expect.times(2).returns(:shipping_rate, :total_tax)
 
     @result = MerchantCalculationResult.new('UPS Ground', '1234567890', Money.new(1000, 'USD'), true, Money.new(2000, 'USD'))
   end
@@ -63,6 +57,12 @@ class Google4R::Checkout::MerchantCalculationResultTest < Test::Unit::TestCase
   end
   
   def test_create_merchant_code_result_works_correctly
+    expect = CouponResult.stubs(:new)
+    expect.times(1).returns(:coupon_result)
+    
+    expect = GiftCertificateResult.stubs(:new)
+    expect.times(1).returns(:gift_certificate_result)
+    
     # Create the new CouponResult and GiftCertificationResult instances.
     @result.create_merchant_code_result(CouponResult)
     @result.create_merchant_code_result(GiftCertificateResult)

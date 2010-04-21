@@ -46,7 +46,7 @@ class Google4R::Checkout::RiskInformationNotificationTest < Test::Unit::TestCase
   <google-order-number>1564645586934214</google-order-number>
   <risk-information>
     <billing-address>
-      <!-- Not to be tested here but in Address --
+      <!-- Not to be tested here but in Address -->
       <!--
       <contact-name>Mr Contact Smith</contact-name>
       <company-name>ACME Products</company-name>

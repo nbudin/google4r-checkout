@@ -44,20 +44,6 @@ class Google4R::Checkout::ReturnItemsCommandTest < Test::Unit::TestCase
     @item_info1 = ItemInfo.new('A1')
     @item_info2 = ItemInfo.new('B2')
     @command.item_info_arr = [@item_info1, @item_info2]
-    
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<return-items xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <item-ids>
-    <item-id>
-      <merchant-item-id>A1</merchant-item-id>
-    </item-id>
-    <item-id>
-      <merchant-item-id>B2</merchant-item-id>
-    </item-id>
-  </item-ids>
-  <send-email>true</send-email>
-</return-items>}
   end
 
   def test_behaves_correctly
@@ -68,7 +54,7 @@ class Google4R::Checkout::ReturnItemsCommandTest < Test::Unit::TestCase
   end
 
   def test_xml_send_email
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals("true", "> send-email", @command)
   end
 
   def test_accessors

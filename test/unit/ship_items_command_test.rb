@@ -46,36 +46,6 @@ class Google4R::Checkout::ShipItemsCommandTest < Test::Unit::TestCase
     @item_info_2 = ItemInfo.new('A2')
     @item_info_2.create_tracking_data('FedEx', 12345678)
     @command.item_info_arr = [@item_info_1, @item_info_2]
-    
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<ship-items xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <item-shipping-information-list>
-    <item-shipping-information>
-      <item-id>
-        <merchant-item-id>A1</merchant-item-id>
-      </item-id>
-      <tracking-data-list>
-        <tracking-data>
-          <carrier>UPS</carrier>
-          <tracking-number>55555555</tracking-number>
-        </tracking-data>
-      </tracking-data-list>
-    </item-shipping-information>
-    <item-shipping-information>
-      <item-id>
-        <merchant-item-id>A2</merchant-item-id>
-      </item-id>
-      <tracking-data-list>
-        <tracking-data>
-          <carrier>FedEx</carrier>
-          <tracking-number>12345678</tracking-number>
-        </tracking-data>
-      </tracking-data-list>
-    </item-shipping-information>
-  </item-shipping-information-list>
-  <send-email>true</send-email>
-</ship-items>}
   end
 
   def test_behaves_correctly
@@ -85,8 +55,18 @@ class Google4R::Checkout::ShipItemsCommandTest < Test::Unit::TestCase
     end
   end
 
-  def test_xml_send_email
-    assert_strings_equal(@sample_xml, @command.to_xml)
+  def test_xml_generation
+    assert_command_element_text_equals("true", "> send-email", @command)
+    @command.item_info_arr.each do |item_info|
+      selector = "> item-shipping-information-list > item-shipping-information"
+      item_info_elt = find_command_elements(selector, @command).select do |element|
+        element.css("item-id > merchant-item-id").first.text == item_info.merchant_item_id
+      end.first
+      
+      selector = "tracking-data-list > tracking-data"
+      assert_equal item_info.tracking_data_arr.first.carrier, item_info_elt.css("#{selector} > carrier").first.text
+      assert_equal item_info.tracking_data_arr.first.tracking_number, item_info_elt.css("#{selector} > tracking-number").first.text
+    end
   end
 
   def test_accessors

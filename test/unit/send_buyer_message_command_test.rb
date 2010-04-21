@@ -42,12 +42,6 @@ class Google4R::Checkout::SendBuyerMessageCommandTest < Test::Unit::TestCase
     @command.google_order_number = '841171949013218'
     @command.message = 'Due to high volume, your order will ship next week. Thank you for your patience.'
     @command.send_email = true
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<send-buyer-message xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <message>Due to high volume, your order will ship next week. Thank you for your patience.</message>
-  <send-email>true</send-email>
-</send-buyer-message>}
   end
 
   def test_behaves_correctly
@@ -57,7 +51,8 @@ class Google4R::Checkout::SendBuyerMessageCommandTest < Test::Unit::TestCase
   end
 
   def test_xml_send_email
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals("true", "> send-email", @command)
+    assert_command_element_text_equals(@command.message, "> message", @command)
   end
 
   def test_accessors

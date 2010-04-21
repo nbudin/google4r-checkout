@@ -66,7 +66,7 @@ class Google4R::Checkout::MerchantCalculatedShippingTest < Test::Unit::TestCase
     @shipping.price = Money.new(100, "EUR")
     assert_kind_of Money, @shipping.price
     assert_equal 100, @shipping.price.cents
-    assert_equal "EUR", @shipping.price.currency
+    assert_equal "EUR", @shipping.price.currency.iso_code
   end
   
   def test_merchant_calculated_shipping_price_is_validated

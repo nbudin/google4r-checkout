@@ -64,20 +64,28 @@ class Test::Unit::TestCase
     "[google-order-number='#{command.google_order_number}']"
   end
   
+  def find_elements(selector, xml)
+    Nokogiri.parse(xml).css(selector)
+  end
+  
   def assert_element_exists(selector, xml, msg=nil)
-    found = Nokogiri.parse(xml).css(selector)
+    found = find_elements(selector, xml)
     assert_not_equal 0, found.size, (msg || "Expected to find #{selector} in #{xml}")
   end
   
   def assert_no_element_exists(selector, xml, msg=nil)
-    found = Nokogiri.parse(xml).css(selector)
+    found = find_elements(selector, xml)
     assert_equal 0, found.size, (msg || "Expected to find #{selector} in #{xml}")
   end
   
   def assert_element_text_equals(text, selector, xml, msg=nil)
-    found = Nokogiri.parse(xml).css(selector)
+    found = find_elements(selector, xml)
     assert_equal 1, found.size, "Expected to find one #{selector} in #{xml} but found #{found.size}"
     assert_equal text, found.text, msg
+  end
+  
+  def find_command_elements(selector, command)
+    find_elements("#{command_selector(command)} #{selector}", command.to_xml)
   end
   
   def assert_command_element_text_equals(text, selector, command, msg=nil)
