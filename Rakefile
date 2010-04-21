@@ -96,7 +96,7 @@ spec = Gem::Specification.new do |spec|
   spec.require_path = 'lib'
   spec.required_ruby_version = '>= 1.8.4'
   
-  spec.add_dependency('money', '>= 1.7.1')
+  spec.add_dependency('money', '~> 2.3.0')
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
