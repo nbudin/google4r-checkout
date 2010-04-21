@@ -118,39 +118,21 @@ class Test::Unit::TestCase
     1.upto([ expected_lines.length, actual_lines.length ].min) do |i|
       next if expected_lines[i] == actual_lines[i]
       
-      if actual_lines[i].nil?
-        _wrap_assertion do
-          message += "\nLine <#{i+1}> was nil"
-          raise Test::Unit::AssertionFailedError, message
-        end
-      end
+      assert_not_nil actual_lines[i], "Line <#{i+1}> was nil"
       
       # expected line != actual line
-      if expected_lines[i].length != actual_lines[i].length then
-        _wrap_assertion do
-          message += "\nLine <#{i+1}> expected to be <#{expected_lines[i].length}> bytes long but was <#{actual_lines[i].length}> bytes long."
-          raise Test::Unit::AssertionFailedError, message
-        end
-      end
+      assert_equal expected_lines[i].length, actual_lines[i].length, "Line <#{i+1}> expected to be <#{expected_lines[i].length}> bytes long but was <#{actual_lines[i].length}> bytes long."
       
       1.upto(expected_lines[i].length) do |j|
-        if expected_lines[i][j] != actual_lines[i][j] then
-          _wrap_assertion do
-            message += "\nCharacter <#{j}> of line <#{i+1}> expected to be <#{expected_lines[i][j]}> but was <#{actual_lines[i][j]}.>"
-            raise Test::Unit::AssertionFailedError, message
-          end
-        end
+        assert_equal expected_lines[i][j], actual_lines[i][j], "Character <#{j}> of line <#{i+1}> expected to be <#{expected_lines[i][j]}> but was <#{actual_lines[i][j]}.>" 
       end
     end
     
     # if we reach here then one of expected and actual is a prefix of the other
     if expected.length < actual.length then
-      message += "\nExpected value is a real prefix of the actual value!"
+      flunk "Expected value is a real prefix of the actual value!"
     else
-      message += "\nActual value is a real prefix of the expected value!"
-    end
-    _wrap_assertion do
-      raise Test::Unit::AssertionFailedError, message
+      flunk "Actual value is a real prefix of the expected value!"
     end
   end
 end
