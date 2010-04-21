@@ -588,15 +588,19 @@ module Google4R #:nodoc:
       end
       
       def financial_state=(financial_state)
+        financial_state_name = financial_state.to_s
+        
         raise 'Invalid financial state %s' % financial_state unless
-            FinancialState.constants.include?(financial_state)
-        @financial_state = financial_state
+            FinancialState.constants.any? { |state_name| state_name.to_s == financial_state_name }
+        @financial_state = financial_state_name
       end
       
       def fulfillment_state=(fulfillment_state)
+        fulfillment_state_name = fulfillment_state.to_s
+        
         raise 'Invalid fulfillment state %s' % fulfillment_state unless
-            FulfillmentState.constants.include?(fulfillment_state)
-        @fulfillment_state = fulfillment_state
+            FulfillmentState.constants.any? { |state_name| state_name.to_s == fulfillment_state_name }
+        @fulfillment_state = fulfillment_state_name
       end
       
       def to_xml
