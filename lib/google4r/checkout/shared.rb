@@ -27,6 +27,8 @@
 # This file contains the classes and modules that are shared by the notification
 # handling and parsing as well as the command generating code.
 
+require 'bigdecimal'
+
 #--
 # TODO: Make the optional attributes return defaults that make sense, i.e. Money.new(0)?
 #++
@@ -317,7 +319,7 @@ module Google4R #:nodoc:
           result.tax_table = shopping_cart.owner.tax_tables.find {|table| table.name == table_selector }
         end
 
-        unit_price = (element.elements['unit-price'].text.to_f * 100).to_i
+        unit_price = (BigDecimal.new(element.elements['unit-price'].text) * 100).to_i
         unit_price_currency = element.elements['unit-price'].attributes['currency']
         result.unit_price = Money.new(unit_price, unit_price_currency)
         
@@ -523,7 +525,7 @@ module Google4R #:nodoc:
             result.subscription = subscription
             result.times = element.attributes['times'].to_i rescue nil
             
-            maximum_charge = (element.elements['maximum-charge'].text.to_f * 100).to_i
+            maximum_charge = (BigDecimal.new(element.elements['maximum-charge'].text) * 100).to_i
             maximum_charge_currency = element.elements['maximum-charge'].attributes['currency']
             result.maximum_charge = Money.new(maximum_charge, maximum_charge_currency)
             
@@ -1028,7 +1030,7 @@ module Google4R #:nodoc:
         def self.create_from_element(this_shipping, element)
           result = CarrierCalculatedShippingOption.new(this_shipping)
           result.shipping_company = element.elements['shipping-company'].text
-          price = (element.elements['price'].text.to_f * 100).to_i
+          price = (BigDecimal.new(element.elements['price'].text) * 100).to_i
           price_currency = element.elements['price'].attributes['currency']
           result.price = Money.new(price, price_currency)
           result.shipping_type = element.elements['shipping-type']
@@ -1104,7 +1106,7 @@ module Google4R #:nodoc:
       
       # Creates a new Unit from the given REXML::Element instance.
       def self.create_from_element(element)
-        result = self.new(element.attributes['value'].to_f) 
+        result = self.new(BigDecimal.new(element.attributes['value'].to_s)) 
         return result
       end
     end
@@ -1117,7 +1119,7 @@ module Google4R #:nodoc:
       
       def initialize(value, unit=INCH)
         @unit = unit
-        @value = value.to_f
+        @value = BigDecimal.new(value.to_s)
       end
     end
     
@@ -1128,7 +1130,7 @@ module Google4R #:nodoc:
       
       def initialize(value, unit=LB)
         @unit = unit
-        @value = value.to_f
+        @value = BigDecimal.new(value.to_s)
       end
     end
     

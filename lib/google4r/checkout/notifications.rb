@@ -29,6 +29,7 @@
 # handling code.
 
 require 'rexml/document'
+require 'bigdecimal'
 
 module Google4R #:nodoc:
   module Checkout #:nodoc:
@@ -230,7 +231,7 @@ module Google4R #:nodoc:
         result.order_adjustment = OrderAdjustment.create_from_element(element.elements['order-adjustment'])
         result.shopping_cart = ShoppingCart.create_from_element(element.elements['shopping-cart'], result)
 
-        amount = (element.elements['order-total'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['order-total'].text)*100).to_i
         currency = element.elements['order-total'].attributes['currency']
         result.order_total = Money.new(amount, currency)
         
@@ -311,11 +312,11 @@ module Google4R #:nodoc:
         charge.google_order_number = element.elements['google-order-number'].text        
         
         currency = element.elements['latest-charge-amount'].attributes['currency'] 
-        amount = (element.elements['latest-charge-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['latest-charge-amount'].text)*100).to_i
         charge.latest_charge_amount = Money.new(amount, currency)
         
         currency = element.elements['total-charge-amount'].attributes['currency']
-        amount = (element.elements['total-charge-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['total-charge-amount'].text)*100).to_i
         charge.total_charge_amount = Money.new(amount, currency)  
         
         charge.timestamp = Time.parse(element.elements['timestamp'].text)
@@ -347,11 +348,11 @@ module Google4R #:nodoc:
         refund.google_order_number = element.elements['google-order-number'].text
         
         currency = element.elements['latest-refund-amount'].attributes['currency']
-        amount = (element.elements['latest-refund-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['latest-refund-amount'].text)*100).to_i
         refund.latest_refund_amount = Money.new(amount, currency)
 
         currency = element.elements['total-refund-amount'].attributes['currency']
-        amount = (element.elements['total-refund-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['total-refund-amount'].text)*100).to_i
         refund.total_refund_amount = Money.new(amount, currency)
         
         refund.timestamp = Time.parse(element.elements['timestamp'].text)
@@ -384,11 +385,11 @@ module Google4R #:nodoc:
         chargeback.google_order_number = element.elements['google-order-number'].text
         
         currency = element.elements['latest-chargeback-amount'].attributes['currency']
-        amount = (element.elements['latest-chargeback-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['latest-chargeback-amount'].text)*100).to_i
         chargeback.latest_chargeback_amount = Money.new(amount, currency)
 
         currency = element.elements['total-chargeback-amount'].attributes['currency']
-        amount = (element.elements['total-chargeback-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['total-chargeback-amount'].text)*100).to_i
         chargeback.total_chargeback_amount = Money.new(amount, currency)
         
         chargeback.timestamp = Time.parse(element.elements['timestamp'].text)
@@ -427,7 +428,7 @@ module Google4R #:nodoc:
         authorization.google_order_number = element.elements['google-order-number'].text
         
         currency = element.elements['authorization-amount'].attributes['currency']
-        amount = (element.elements['authorization-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['authorization-amount'].text)*100).to_i
         authorization.authorization_amount = Money.new(amount, currency)
 
         authorization.authorization_expiration_date = Time.parse(element.elements['authorization-expiration-date'].text)
@@ -592,11 +593,11 @@ module Google4R #:nodoc:
         
         result.code = element.elements['code'].text
         
-        amount = (element.elements['calculated-amount'].text.to_f*100).to_i rescue nil
+        amount = (BigDecimal.new(element.elements['calculated-amount'].text)*100).to_i rescue nil
         currency = element.elements['calculated-amount'].attributes['currency'] rescue nil
         result.calculated_amount = Money.new(amount, currency) unless amount.nil?
         
-        amount = (element.elements['applied-amount'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['applied-amount'].text)*100).to_i
         currency = element.elements['applied-amount'].attributes['currency']
         result.applied_amount = Money.new(amount, currency)
         
@@ -642,7 +643,7 @@ module Google4R #:nodoc:
         
         result.name = element.elements['shipping-name'].text
         
-        amount = (element.elements['shipping-cost'].text.to_f*100).to_i
+        amount = (BigDecimal.new(element.elements['shipping-cost'].text)*100).to_i
         currency = element.elements['shipping-cost'].attributes['currency']
         result.cost = Money.new(amount, currency)
         
@@ -674,7 +675,7 @@ module Google4R #:nodoc:
       def self.create_from_element(element)
         result = OrderAdjustment.new
         
-        amount = (element.elements['total-tax'].text.to_f*100).to_i rescue nil
+        amount = (BigDecimal.new(element.elements['total-tax'].text)*100).to_i rescue nil
         currency = element.elements['total-tax'].attributes['currency'] rescue nil
         result.total_tax = Money.new(amount, currency) unless amount.nil?
         
@@ -686,7 +687,7 @@ module Google4R #:nodoc:
         
         result.merchant_calculation_successful = (element.elements['merchant-calculation-successful'].text.downcase == 'true') rescue nil
         
-        amount = (element.elements['adjustment-total'].text.to_f*100).to_i rescue nil
+        amount = (BigDecimal.new(element.elements['adjustment-total'].text)*100).to_i rescue nil
         currency = element.elements['adjustment-total'].attributes['currency'] rescue nil
         result.adjustment_total = Money.new(amount, currency) unless amount.nil?
         
