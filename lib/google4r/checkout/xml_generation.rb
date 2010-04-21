@@ -90,7 +90,7 @@ module Google4R #:nodoc:
         super
         self.process_command(@command)
         io = StringIO.new
-        @document.write(io, 0) # TODO: Maybe replace 0 by -1 so no spaces are inserted?
+        @document.write(io, -1) # TODO: Maybe replace 0 by -1 so no spaces are inserted?
         return io.string
       end
 
@@ -99,7 +99,7 @@ module Google4R #:nodoc:
       end
       
       protected
-      
+            
       # Base method to generate root tag of a command
       def process_command(command)
         tag_name = self.tag_name_for_command(command.class)
@@ -407,10 +407,11 @@ module Google4R #:nodoc:
            shipping.shipping_restrictions_allowed_areas.length > 0 then
           shipping_restrictions_tag = element.add_element('shipping-restrictions')
           
+          allow_us_po_box = shipping_restrictions_tag.add_element('allow-us-po-box')
           if shipping.shipping_restrictions_allow_us_po_box
-            shipping_restrictions_tag.add_element('allow-us-po-box', 'true')
+            allow_us_po_box.text = 'true'
           else
-            shipping_restrictions_tag.add_element('allow-us-po-box', 'false')
+            allow_us_po_box.text = 'false'
           end          
           
           if shipping.shipping_restrictions_allowed_areas.length > 0 then
@@ -435,10 +436,11 @@ module Google4R #:nodoc:
              shipping.address_filters_allowed_areas.length > 0 then
             address_filters_tag = element.add_element('address-filters')
             
-            if shipping.address_filters_allow_us_po_box
-              address_filters_tag.add_element('allow-us-po-box', 'true')
+            allow_us_po_box = shipping_restrictions_tag.add_element('allow-us-po-box')
+            if shipping.shipping_restrictions_allow_us_po_box
+              allow_us_po_box.text = 'true'
             else
-              address_filters_tag.add_element('allow-us-po-box', 'false')
+              allow_us_po_box.text = 'false'
             end
             
             if shipping.address_filters_allowed_areas.length > 0 then
