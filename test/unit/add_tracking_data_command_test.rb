@@ -42,14 +42,6 @@ class Google4R::Checkout::AddTrackingDataCommandTest < Test::Unit::TestCase
     @command.google_order_number = '841171949013218'
     @command.carrier = 'UPS'
     @command.tracking_number = 'Z9842W69871281267'
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<add-tracking-data xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <tracking-data>
-    <carrier>UPS</carrier>
-    <tracking-number>Z9842W69871281267</tracking-number>
-  </tracking-data>
-</add-tracking-data>}
   end
 
   def test_behaves_correctly
@@ -59,7 +51,8 @@ class Google4R::Checkout::AddTrackingDataCommandTest < Test::Unit::TestCase
   end
 
   def test_xml
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals(@command.carrier, "> tracking-data > carrier", @command)
+    assert_command_element_text_equals(@command.tracking_number, "> tracking-data > tracking-number", @command)
   end
 
   def test_accessors

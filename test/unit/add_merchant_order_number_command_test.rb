@@ -41,11 +41,6 @@ class Google4R::Checkout::AddMerchantOrderNumberCommandTest < Test::Unit::TestCa
 
     @command.google_order_number = '841171949013218'
     @command.merchant_order_number = 'P6502-53-7861SBJD'
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<add-merchant-order-number xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <merchant-order-number>P6502-53-7861SBJD</merchant-order-number>
-</add-merchant-order-number>}
   end
 
   def test_behaves_correctly
@@ -55,7 +50,7 @@ class Google4R::Checkout::AddMerchantOrderNumberCommandTest < Test::Unit::TestCa
   end
 
   def test_xml
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals(@command.merchant_order_number, "> merchant-order-number", @command)
   end
 
   def test_accessors

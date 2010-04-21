@@ -46,21 +46,6 @@ class Google4R::Checkout::CancelItemsCommandTest < Test::Unit::TestCase
     @command.item_info_arr = [@item_info1, @item_info2]
     @command.reason = 'This item is no longer manufactured.'
     @command.comment = 'Suggested replacement is model XBR2700.'
-    
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<cancel-items xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <item-ids>
-    <item-id>
-      <merchant-item-id>A1</merchant-item-id>
-    </item-id>
-    <item-id>
-      <merchant-item-id>B2</merchant-item-id>
-    </item-id>
-  </item-ids>
-  <send-email>true</send-email>
-  <reason>This item is no longer manufactured.</reason>
-  <comment>Suggested replacement is model XBR2700.</comment>
-</cancel-items>}
   end
 
   def test_behaves_correctly
@@ -72,7 +57,9 @@ class Google4R::Checkout::CancelItemsCommandTest < Test::Unit::TestCase
   end
 
   def test_xml_send_email
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals("true", "> send-email", @command)
+    assert_command_element_text_equals(@command.reason, "> reason", @command)
+    assert_command_element_text_equals(@command.comment, "> comment", @command)
   end
 
   def test_accessors

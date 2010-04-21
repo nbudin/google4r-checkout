@@ -40,9 +40,6 @@ class Google4R::Checkout::AuthorizeOrderCommandTest < Test::Unit::TestCase
     @command = @frontend.create_authorize_order_command
 
     @command.google_order_number = '841171949013218'
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<authorize-order xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'/>}
   end
 
   def test_behaves_correctly
@@ -52,7 +49,7 @@ class Google4R::Checkout::AuthorizeOrderCommandTest < Test::Unit::TestCase
   end
 
   def test_xml
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_element_exists(command_selector(@command), @command.to_xml)
   end
 
   def test_accessors

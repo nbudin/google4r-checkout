@@ -33,6 +33,7 @@ require 'test/unit'
 
 require 'rubygems'
 require 'mocha'
+require 'nokogiri'
 
 class Array
   # Returns the "power set" for this Array. This means that an array with all
@@ -56,6 +57,39 @@ end
 class Test::Unit::TestCase
   def assert_nospace_equal(expected, actual)
     return assert_equal(expected.gsub(/\s/, ''), actual.gsub(/\s/, ''))
+  end
+  
+  def command_selector(command)
+    "#{Google4R::Checkout::CommandXmlGenerator::COMMAND_TO_TAG[command.class]}" +
+    "[google-order-number='#{command.google_order_number}']"
+  end
+  
+  def assert_element_exists(selector, xml, msg=nil)
+    found = Nokogiri.parse(xml).css(selector)
+    assert_not_equal 0, found.size, (msg || "Expected to find #{selector} in #{xml}")
+  end
+  
+  def assert_no_element_exists(selector, xml, msg=nil)
+    found = Nokogiri.parse(xml).css(selector)
+    assert_equal 0, found.size, (msg || "Expected to find #{selector} in #{xml}")
+  end
+  
+  def assert_element_text_equals(text, selector, xml, msg=nil)
+    found = Nokogiri.parse(xml).css(selector)
+    assert_equal 1, found.size, "Expected to find one #{selector} in #{xml} but found #{found.size}"
+    assert_equal text, found.text, msg
+  end
+  
+  def assert_command_element_text_equals(text, selector, command, msg=nil)
+    assert_element_text_equals(text, "#{command_selector(command)} #{selector}", command.to_xml, msg)
+  end
+  
+  def assert_command_element_exists(selector, command, msg=nil)
+    assert_element_exists("#{command_selector(command)} #{selector}", command.to_xml, msg)
+  end
+  
+  def assert_no_command_element_exists(selector, command, msg=nil)
+    assert_no_element_exists("#{command_selector(command)} #{selector}", command.to_xml, msg)
   end
   
   # Perform assertion on strings. The advantage of this method over the normal assert_equal
@@ -83,6 +117,13 @@ class Test::Unit::TestCase
     
     1.upto([ expected_lines.length, actual_lines.length ].min) do |i|
       next if expected_lines[i] == actual_lines[i]
+      
+      if actual_lines[i].nil?
+        _wrap_assertion do
+          message += "\nLine <#{i+1}> was nil"
+          raise Test::Unit::AssertionFailedError, message
+        end
+      end
       
       # expected line != actual line
       if expected_lines[i].length != actual_lines[i].length then

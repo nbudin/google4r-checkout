@@ -40,14 +40,6 @@ class Google4R::Checkout::ChargeOrderCommandTest < Test::Unit::TestCase
     @command = @frontend.create_charge_order_command
     @command.google_order_number = '1234-5678-ABCD-1234'
     @command.amount = Money.new(1000, 'GBP')
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<charge-order xmlns='http://checkout.google.com/schema/2' google-order-number='1234-5678-ABCD-1234'>
-  <amount currency='GBP'>10.00</amount>
-</charge-order>}
-
-    @sample_no_amount=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<charge-order xmlns='http://checkout.google.com/schema/2' google-order-number='1234-5678-ABCD-1234'/>}
   end
   
   def test_behaves_correctly
@@ -56,9 +48,9 @@ class Google4R::Checkout::ChargeOrderCommandTest < Test::Unit::TestCase
     end
   end
 
-  def test_xml_with_amount
+  def test_xml_without_amount
     @command.amount = nil
-    assert_strings_equal(@sample_no_amount, @command.to_xml)
+    assert_no_command_element_exists("amount", @command)
   end
 
   def test_accessors
@@ -67,7 +59,7 @@ class Google4R::Checkout::ChargeOrderCommandTest < Test::Unit::TestCase
   end
 
   def test_xml_generation
-    assert_strings_equal(@sample_xml, @command.to_xml)
+    assert_command_element_text_equals("10.00", "> amount[currency=GBP]", @command)
   end
 
   def test_to_xml_does_not_raise_exception

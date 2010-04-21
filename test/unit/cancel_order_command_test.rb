@@ -42,17 +42,6 @@ class Google4R::Checkout::CancelOrderCommandTest < Test::Unit::TestCase
     @command.google_order_number = '841171949013218'
     @command.reason = 'Buyer cancelled the order'
     @command.comment = 'Buyer ordered another item'
-
-    @sample_xml=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<cancel-order xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <reason>Buyer cancelled the order</reason>
-  <comment>Buyer ordered another item</comment>
-</cancel-order>}
-
-    @sample_xml_no_comment=%Q{<?xml version='1.0' encoding='UTF-8'?>
-<cancel-order xmlns='http://checkout.google.com/schema/2' google-order-number='841171949013218'>
-  <reason>Buyer cancelled the order</reason>
-</cancel-order>}
   end
 
   def test_behaves_correctly
@@ -68,12 +57,14 @@ class Google4R::Checkout::CancelOrderCommandTest < Test::Unit::TestCase
   end
 
   def test_xml
-    assert_strings_equal @sample_xml, @command.to_xml
+    assert_command_element_text_equals(@command.reason, "> reason", @command)
+    assert_command_element_text_equals(@command.comment, "> comment", @command)
   end
 
   def test_xml_when_comment_not_used
     @command.comment = nil
-    assert_strings_equal @sample_xml_no_comment, @command.to_xml
+    assert_command_element_text_equals(@command.reason, "> reason", @command)
+    assert_no_command_element_exists("> comment", @command)
   end
 
   def test_to_xml_does_not_raise_exception
