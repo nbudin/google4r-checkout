@@ -18,19 +18,19 @@ You have to place a file called 'frontend_configuration.rb' in the directory'tes
 
 The file should contain content similar to:
 
-  # Uncomment the following line if you are using Google Checkout in Great Britain
-  # and adjust it if you want to test google4r-checkout against any other (future)
-  # Google Checkout service.
-  
-  # Money.default_currency = 'GBP'
-  
-  # The test configuration for the Google4R::Checkout::Frontend class.
-  FRONTEND_CONFIGURATION = 
-    { 
-      :merchant_id => '<your merchant id>', 
-      :merchant_key => '<your merchant key>',
-      :use_sandbox => true
-    }
+    # Uncomment the following line if you are using Google Checkout in Great Britain
+    # and adjust it if you want to test google4r-checkout against any other (future)
+    # Google Checkout service.
+    
+    # Money.default_currency = 'GBP'
+    
+    # The test configuration for the Google4R::Checkout::Frontend class.
+    FRONTEND_CONFIGURATION = 
+      { 
+        :merchant_id => '<your merchant id>', 
+        :merchant_key => '<your merchant key>',
+        :use_sandbox => true
+      }
 
 ## Dependencies
 
@@ -40,19 +40,19 @@ The unit tests use Mocha so you have to install the gem "mocha" to run the tests
 
 <code>rake rails:freeze:gems</code> only works for the Rails gems. So, how do you freeze your own gems like google4r? It turns out to be pretty straightforward:
 
-  cd RAILS_ROOT
-  cd vendor
-  gem unpack google4r-checkout
-  ls 
-  # ... google4r-checkout-0.1.1 ...
+    cd RAILS_ROOT
+    cd vendor
+    gem unpack google4r-checkout
+    ls 
+    # ... google4r-checkout-0.1.1 ...
 
 Then, open RAILS_ROOT/config/environment.rb in your favourite text editor and add the following lines at the top of the file just below <code>require File.join(File.dirname(__FILE__), 'boot')</code>:
 
-  # Freeze non-Rails gem.
-  Dir.glob(File.join(RAILS_ROOT, 'vendor', '*', 'lib')) do |path|
-    $LOAD_PATH << path
-  end
+    # Freeze non-Rails gem.
+    Dir.glob(File.join(RAILS_ROOT, 'vendor', '*', 'lib')) do |path|
+      $LOAD_PATH << path
+    end
 
 Now you can use the following in your own code:
 
-  require 'google4r/checkout'
+    require 'google4r/checkout'
