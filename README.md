@@ -8,7 +8,21 @@ google4r itself is distributed under an MIT style license.
 
 However, the library includes the [cacert.pem](http://curl.haxx.se/ca/cacert.pem) file from the Mozilla project. This file is distributed under the [MPL](http://www.mozilla.org/MPL/).
 
-## More Information
+### Installing
+
+Gems are hosted on rubygems.org (aka Gemcutter), so on reasonably recent versions of Rubygems, you should be able to install just like this:
+
+    gem install google4r-checkout
+
+Or, go to [our page on rubygems.org](http://rubygems.org/gems/google4r-checkout).
+
+### Issue Tracking and Wiki
+
+Our issue tracker and wiki can be found [on Google Code](http://code.google.com/p/google-checkout-ruby-sample-code/).  The best way to let us know about bugs or feature requests is to report an issue there.
+
+### Documentation
+
+We've got RDoc documentation for the google4r-checkout library [generated on rdoc.info](http://rdoc.info/projects/nbudin/google4r-checkout).
 
 You can find more information on the Google Checkout API [here](http://code.google.com/apis/checkout/developer/index.html). Note that the API documentation assumes an understanding of the Google Checkout XML API.
 
