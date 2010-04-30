@@ -1,18 +1,18 @@
-= google4r/checkout
+# google4r/checkout
 
 google4r/checkout is a library to access the Google Checkout API.
 
-=== License
+### License
 
 google4r itself is distributed under an MIT style license.
 
-However, the library includes the cacert.pem:http://curl.haxx.se/ca/cacert.pem file from the Mozilla project. This file is distributed under the MPL:http://www.mozilla.org/MPL/.
+However, the library includes the [cacert.pem](http://curl.haxx.se/ca/cacert.pem) file from the Mozilla project. This file is distributed under the [MPL](http://www.mozilla.org/MPL/).
 
-== More Information
+## More Information
 
-You can find more information on the Google Checkout API here:http://code.google.com/apis/checkout/developer/index.html. Note that the API documentation assumes an understanding of the Google Checkout XML API.
+You can find more information on the Google Checkout API [here](http://code.google.com/apis/checkout/developer/index.html). Note that the API documentation assumes an understanding of the Google Checkout XML API.
 
-== Google Checkout Tests
+## Google Checkout Tests
 
 You have to place a file called 'frontend_configuration.rb' in the directory'test' with the configuration for the Google4R::Checkout::Frontend class to use for running the tests.
 
@@ -32,11 +32,11 @@ The file should contain content similar to:
       :use_sandbox => true
     }
 
-== Dependencies
+## Dependencies
 
 The unit tests use Mocha so you have to install the gem "mocha" to run the tests. You will also need the money gem library.
 
-== How To: Freeze a google4r version in a Rails project
+## How To: Freeze a google4r version in a Rails project
 
 <code>rake rails:freeze:gems</code> only works for the Rails gems. So, how do you freeze your own gems like google4r? It turns out to be pretty straightforward:
 
