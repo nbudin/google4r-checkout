@@ -272,7 +272,7 @@ module Google4R #:nodoc:
         item_element.add_element('item-name').text = item.name
         item_element.add_element('item-description').text = item.description
         
-        item_element.add_element('unit-price', { 'currency' => item.unit_price.currency }).text = item.unit_price.to_s
+        item_element.add_element('unit-price', { 'currency' => item.unit_price.currency.to_s }).text = item.unit_price.to_s
         item_element.add_element('quantity').text = item.quantity.to_i
         
         if not item.id.nil? then
@@ -356,7 +356,7 @@ module Google4R #:nodoc:
         end
         
         if not payment.maximum_charge.nil? then
-          payment_element.add_element('maximum-charge', { 'currency' => payment.maximum_charge.currency }).text = payment.maximum_charge.to_s
+          payment_element.add_element('maximum-charge', { 'currency' => payment.maximum_charge.currency.to_s }).text = payment.maximum_charge.to_s
         end
       end
       
@@ -401,7 +401,7 @@ module Google4R #:nodoc:
       def process_shipping(shipping_type, parent, shipping)
         element = parent.add_element(shipping_type)
         element.add_attribute('name', shipping.name)
-        element.add_element('price', { 'currency' => shipping.price.currency }).text = shipping.price.to_s
+        element.add_element('price', { 'currency' => shipping.price.currency.to_s }).text = shipping.price.to_s
         
         if shipping.shipping_restrictions_excluded_areas.length + 
            shipping.shipping_restrictions_allowed_areas.length > 0 then
@@ -465,7 +465,7 @@ module Google4R #:nodoc:
       def process_pickup(parent, shipping)
         element = parent.add_element('pickup')
         element.add_attribute('name', shipping.name)
-        element.add_element('price', { 'currency' => shipping.price.currency }).text = shipping.price.to_s
+        element.add_element('price', { 'currency' => shipping.price.currency.to_s }).text = shipping.price.to_s
       end
       
       def process_carrier_calculated_shipping(shipping_type, parent, shipping)
@@ -482,7 +482,7 @@ module Google4R #:nodoc:
       
       def process_carrier_calculated_shipping_option(parent, option)
         element = parent.add_element('carrier-calculated-shipping-option')
-        element.add_element('price', { 'currency' => option.price.currency }).text = option.price.to_s
+        element.add_element('price', { 'currency' => option.price.currency.to_s }).text = option.price.to_s
         element.add_element('shipping-company').text = option.shipping_company
         element.add_element('shipping-type').text = option.shipping_type
         if not option.carrier_pickup.nil?
@@ -490,7 +490,7 @@ module Google4R #:nodoc:
         end
         if not option.additional_fixed_charge.nil?
           element.add_element('additional-fixed-charge', 
-              { 'currency' => option.additional_fixed_charge.currency }).text = 
+              { 'currency' => option.additional_fixed_charge.currency.to_s }).text = 
               option.additional_fixed_charge.to_s
         end
         if not option.additional_variable_charge_percent.nil?
@@ -615,7 +615,7 @@ module Google4R #:nodoc:
       def process_money(parent, money)
         amount_element = parent.add_element('amount')
         amount_element.text = money.to_s
-        amount_element.add_attribute('currency', money.currency)
+        amount_element.add_attribute('currency', money.currency.to_s)
       end
     end
 
@@ -634,7 +634,7 @@ module Google4R #:nodoc:
       def process_money(parent, money)
         amount_element = parent.add_element('amount')
         amount_element.text = money.to_s
-        amount_element.add_attribute('currency', money.currency)
+        amount_element.add_attribute('currency', money.currency.to_s)
       end
       
       # add the comment element to the refund command
@@ -811,12 +811,12 @@ module Google4R #:nodoc:
         element.add_attribute("address-id", merchant_calculation_result.address_id)
         shipping_rate = element.add_element("shipping-rate")
         shipping_rate.text = merchant_calculation_result.shipping_rate.to_s
-        shipping_rate.add_attribute("currency", merchant_calculation_result.shipping_rate.currency)
+        shipping_rate.add_attribute("currency", merchant_calculation_result.shipping_rate.currency.to_s)
         element.add_element("shippable").text = merchant_calculation_result.shippable.to_s
         if (!merchant_calculation_result.total_tax.nil?)
           total_tax = element.add_element("total-tax")
           total_tax.text = merchant_calculation_result.total_tax.to_s
-          total_tax.add_attribute("currency", merchant_calculation_result.total_tax.currency)
+          total_tax.add_attribute("currency", merchant_calculation_result.total_tax.currency.to_s)
         end
         process_code_results(element, merchant_calculation_result.merchant_code_results)
       end
@@ -840,7 +840,7 @@ module Google4R #:nodoc:
         element.add_element("code").text = merchant_code_result.code.to_s
         calculated_amount = element.add_element("calculated-amount")
         calculated_amount.text = merchant_code_result.calculated_amount.to_s
-        calculated_amount.add_attribute("currency", merchant_code_result.calculated_amount.currency)
+        calculated_amount.add_attribute("currency", merchant_code_result.calculated_amount.currency.to_s)
         element.add_element("message").text = merchant_code_result.message
       end
     end
