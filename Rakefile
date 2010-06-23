@@ -15,7 +15,7 @@ task :test => :'test:all'
 # File sets 
 # 
 RUBY_FILES  = FileList['lib/**/*.rb', 'lib/**/vendor/**'] 
-RDOC_EXTRA  = FileList['README','LICENSE', 'CHANGES'] 
+RDOC_EXTRA  = FileList['README.md','LICENSE', 'CHANGES'] 
 EXTRA_FILES = FileList['var/cacert.pem'] 
 
 #
@@ -26,7 +26,7 @@ desc 'Generate documentation for the google4r library.'
 Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'docs'
   rdoc.title    = 'google4r/checkout'
-  rdoc.main     = 'README'
+  rdoc.main     = 'README.md'
   rdoc.options << '--line-numbers' << '--inline-source'
   rdoc.rdoc_files = RUBY_FILES + RDOC_EXTRA 
 end
