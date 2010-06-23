@@ -77,7 +77,7 @@ end
 #
 # Rubygem creation.
 #
-version = "1.1.beta1"
+version = "1.1.beta2"
 spec = Gem::Specification.new do |spec|
   spec.platform = Gem::Platform::RUBY
 
