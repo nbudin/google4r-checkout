@@ -32,6 +32,9 @@ $LOAD_PATH << File.join(File.dirname(__FILE__), '..', 'lib')
 require 'test/unit'
 
 require 'rubygems'
+require 'bundler'
+Bundler.setup(:default, :test)
+
 require 'mocha'
 require 'nokogiri'
 
