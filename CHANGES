@@ -1,5 +1,10 @@
 =google4r-checkout Changelog
 
+== 1.1.beta2 (2010-06-23)
+
+* Make gem compatible with Money 3.x (thanks George Palmer!)
+* Use Bundler for running test suite
+
 == 1.1.beta1 (2010-04-21)
 
 * Full Ruby 1.9.x compatibility
