@@ -207,7 +207,9 @@ module Google4R #:nodoc:
       # tax_table_factory.
       def timestamp=(time)
         @timestamp = time
-        @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
+        unless frontend.tax_table_factory.nil?
+          @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
+        end
       end
       
       # Factory method to create a new CheckoutNotification object from the REXML:Element object
@@ -266,7 +268,9 @@ module Google4R #:nodoc:
       # tax_table_factory.
       def timestamp=(time)
         @timestamp = time
-        @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
+        unless frontend.tax_table_factory.nil?
+          @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
+        end
       end
       
       # Factory method that creates a new OrderStateChangeNotification from an REXML::Element instance.
