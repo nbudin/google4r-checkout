@@ -132,7 +132,9 @@ module Google4R #:nodoc:
         @anonymous_addresses = Array.new
         @shipping_methods = Array.new
         @merchant_code_strings = Array.new
-        @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.now)
+        unless frontend.tax_table_factory.nil?
+          @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.now)
+        end
       end
       
       # Factory method to create a new MerchantCalculationCallback object from 

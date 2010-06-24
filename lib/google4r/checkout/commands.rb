@@ -263,8 +263,10 @@ module Google4R #:nodoc:
       def initialize(frontend)
         super(frontend)
         @shopping_cart = ShoppingCart.new(self)
-        @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.new)
         @shipping_methods = Array.new
+        unless frontend.tax_table_factory.nil?
+          @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.new)
+        end
       end
       
       # Use this method to create a new shipping method. You have to pass in one of
