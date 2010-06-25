@@ -57,6 +57,7 @@ module Google4R #:nodoc:
       # The list of command tag names
       COMMAND_TO_TAG =
       {
+        ChargeAndShipOrderCommand => "charge-and-ship-order",
         ChargeOrderCommand => 'charge-order',
         RefundOrderCommand => 'refund-order',
         CancelOrderCommand => 'cancel-order',
@@ -616,6 +617,33 @@ module Google4R #:nodoc:
         amount_element = parent.add_element('amount')
         amount_element.text = money.to_s
         amount_element.add_attribute('currency', money.currency.to_s)
+      end
+    end
+    
+    class ChargeAndShipOrderCommandXmlGenerator < CommandXmlGenerator
+      
+      protected
+      
+      def process_command(command)
+        root = super
+        process_money(root, command.amount) if command.amount
+        process_tracking_data(root, command.carrier, command.tracking_number)
+        root.add_element('send-email').text = command.send_email.to_s if command.send_email
+      end
+      
+      def process_money(parent, money)
+        amount_element = parent.add_element('amount')
+        amount_element.text = money.to_s
+        amount_element.add_attribute('currency', money.currency.to_s)
+      end
+
+      def process_tracking_data(parent, carrier, tracking_number)
+        if carrier and tracking_number then
+          e1 = parent.add_element('tracking-data-list')
+          e2 = e1.add_element('tracking-data')
+          e2.add_element('carrier').text = carrier
+          e2.add_element('tracking-number').text = tracking_number
+        end
       end
     end
 
