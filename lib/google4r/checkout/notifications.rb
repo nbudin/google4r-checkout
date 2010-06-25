@@ -207,7 +207,7 @@ module Google4R #:nodoc:
       # tax_table_factory.
       def timestamp=(time)
         @timestamp = time
-        unless frontend.tax_table_factory.nil?
+        if frontend.tax_table_factory
           @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
         end
       end
@@ -268,7 +268,7 @@ module Google4R #:nodoc:
       # tax_table_factory.
       def timestamp=(time)
         @timestamp = time
-        unless frontend.tax_table_factory.nil?
+        if frontend.tax_table_factory
           @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(time)
         end
       end

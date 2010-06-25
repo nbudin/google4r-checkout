@@ -132,7 +132,7 @@ module Google4R #:nodoc:
         @anonymous_addresses = Array.new
         @shipping_methods = Array.new
         @merchant_code_strings = Array.new
-        unless frontend.tax_table_factory.nil?
+        if frontend.tax_table_factory
           @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.now)
         end
       end
