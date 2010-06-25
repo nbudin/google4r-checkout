@@ -264,7 +264,7 @@ module Google4R #:nodoc:
         super(frontend)
         @shopping_cart = ShoppingCart.new(self)
         @shipping_methods = Array.new
-        unless frontend.tax_table_factory.nil?
+        if frontend.tax_table_factory
           @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.new)
         end
       end
