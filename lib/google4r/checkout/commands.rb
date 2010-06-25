@@ -355,6 +355,26 @@ module Google4R #:nodoc:
       end
     end
 
+    class ChargeAndShipOrderCommand < Command
+      # The amount to charge, optional, Money
+      attr_accessor :amount
+
+      # if google checkout should email buyer to ssay order is dispatched
+      attr_accessor :send_email
+      
+      # The name of the company responsible for shipping the item. Valid values
+      # for this tag are DHL, FedEx, UPS, USPS and Other.
+      attr_accessor :carrier
+      
+      # The shipper's tracking number that is associated with an order
+      attr_accessor :tracking_number
+
+      # Generates the XML for this ChargeOrderCommand
+      def to_xml
+        ChargeAndShipOrderCommandXmlGenerator.new(self).generate
+      end      
+    end
+
     # The RefundOrderCommand instructs Google Checkout to refund an order
     class RefundOrderCommand < Command
       # The amount to refund, optional, Money

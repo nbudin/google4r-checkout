@@ -116,6 +116,12 @@ module Google4R #:nodoc:
         return ChargeOrderCommand.new(self)
       end
       
+      # Factory method to create a new ChargeAndShipOrderCommand object. Use this method to 
+      # create your ChargeAndShipOrderCommand instances.
+      def create_charge_and_ship_order_command
+        return ChargeAndShipOrderCommand.new(self)
+      end
+      
       # Factory method that creates a new CheckoutCommand object. Use this method to create 
       # your CheckoutCommand instances.
       def create_checkout_command
