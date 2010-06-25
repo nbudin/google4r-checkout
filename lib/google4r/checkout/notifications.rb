@@ -303,6 +303,8 @@ module Google4R #:nodoc:
       
       # The total amount charged for an order (Money)
       attr_accessor :total_charge_amount
+      
+      attr_accessor :latest_charge_fee
 
       # Factory method that creates a new ChargeAmountNotification from an REXML::Element instance.
       # Use this to create instances of ChargeAmountNotification.
@@ -322,6 +324,8 @@ module Google4R #:nodoc:
         currency = element.elements['total-charge-amount'].attributes['currency']
         amount = (BigDecimal.new(element.elements['total-charge-amount'].text)*100).to_i
         charge.total_charge_amount = Money.new(amount, currency)  
+        
+        charge.latest_charge_fee = ChargeFee.create_from_element(element.elements["latest-charge-fee"])
         
         charge.timestamp = Time.parse(element.elements['timestamp'].text)
 

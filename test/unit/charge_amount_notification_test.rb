@@ -46,6 +46,11 @@ class Google4R::Checkout::ChargeAmountNotificationTest < Test::Unit::TestCase
   <google-order-number>722226456784742</google-order-number>
   <latest-charge-amount currency="GBP">1.23</latest-charge-amount>
   <total-charge-amount currency="GBP">9.99</total-charge-amount>
+  <latest-charge-fee>
+    <total>1.21</total>
+    <flat>0.2</flat>
+    <percentage>3.4</percentage>
+  </latest-charge-fee>
 </charge-amount-notification>
 }
   end
@@ -60,5 +65,8 @@ class Google4R::Checkout::ChargeAmountNotificationTest < Test::Unit::TestCase
     assert_equal Time.parse('2007-05-06T18:41:21.000Z'), notification.timestamp
     assert_equal(Money.new(999, 'GBP'), notification.total_charge_amount)
     assert_equal(Money.new(123, 'GBP'), notification.latest_charge_amount)
+    assert_equal(Money.new(20, nil), notification.latest_charge_fee.flat)
+    assert_equal(3.4, notification.latest_charge_fee.percentage)
+    assert_equal(Money.new(121, nil), notification.latest_charge_fee.total)
   end
 end
