@@ -1261,6 +1261,26 @@ module Google4R #:nodoc:
       end
     end
     
+    # ChargeFee instances are used in the ChargeAmountNotifications
+    class ChargeFee
+      # The flat portion of the fee (Money)
+      attr_accessor :flat
+      
+      # The percentage of the transaction value (Float)
+      attr_accessor :percentage
+      
+      # The total fee (Money)
+      attr_accessor :total
+      
+      def self.create_from_element(element)
+        result = ChargeFee.new
+        result.flat = Money.new(element.elements['flat'].text.to_f * 100, nil)
+        result.percentage = element.elements['percentage'].text.to_f
+        result.total = Money.new(element.elements['total'].text.to_f * 100, nil)
+        result
+      end
+    end
+    
     # financial_state
     # REVIEWING - Google Checkout is reviewing the order.
     # CHARGEABLE - The order is ready to be charged.
