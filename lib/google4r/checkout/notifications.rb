@@ -344,6 +344,9 @@ module Google4R #:nodoc:
       # The total amount refunded for an order (Money)
       attr_accessor :total_refund_amount
 
+      # The amount of the fee refunded by Google (Money)
+      attr_accessor :latest_fee_refund_amount
+
       # Factory method that creates a new RefundAmountNotification from an REXML::Element instance.
       # Use this to create instances of RefundAmountNotification.
       #
@@ -362,6 +365,10 @@ module Google4R #:nodoc:
         currency = element.elements['total-refund-amount'].attributes['currency']
         amount = (BigDecimal.new(element.elements['total-refund-amount'].text)*100).to_i
         refund.total_refund_amount = Money.new(amount, currency)
+        
+        currency = element.elements['latest-fee-refund-amount'].attributes['currency']
+        amount = (BigDecimal.new(element.elements['latest-fee-refund-amount'].text)*100).to_i
+        refund.latest_fee_refund_amount = Money.new(amount, currency)
         
         refund.timestamp = Time.parse(element.elements['timestamp'].text)
 

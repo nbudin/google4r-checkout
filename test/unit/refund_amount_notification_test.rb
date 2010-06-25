@@ -46,6 +46,7 @@ class Google4R::Checkout::RefundAmountNotificationTest < Test::Unit::TestCase
   <google-order-number>841171949013218</google-order-number>
   <latest-refund-amount currency="GBP">226.06</latest-refund-amount>
   <total-refund-amount currency="GBP">226.06</total-refund-amount>
+  <latest-fee-refund-amount>5.04</latest-fee-refund-amount>
   <timestamp>2006-03-18T20:25:31</timestamp>
 </refund-amount-notification>
 }
@@ -61,5 +62,6 @@ class Google4R::Checkout::RefundAmountNotificationTest < Test::Unit::TestCase
     assert_equal Time.parse('2006-03-18T20:25:31'), notification.timestamp
     assert_equal(Money.new(22606, 'GBP'), notification.total_refund_amount)
     assert_equal(Money.new(22606, 'GBP'), notification.latest_refund_amount)
+    assert_equal(Money.new(504, nil), notification.latest_fee_refund_amount)
   end
 end
