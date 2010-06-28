@@ -77,7 +77,7 @@ end
 #
 # Rubygem creation.
 #
-version = "1.1.beta2"
+version = "1.1.beta3"
 spec = Gem::Specification.new do |spec|
   spec.platform = Gem::Platform::RUBY
 
@@ -88,7 +88,7 @@ spec = Gem::Specification.new do |spec|
   spec.author = "Tony Chan"
   spec.homepage = "http://code.google.com/p/google-checkout-ruby-sample-code"
 
-  spec.test_files = FileList['test/**/*_test.rb'] 
+  spec.test_files = FileList['test/**/*_test.rb', 'test/test_helper.rb', 'test/frontend_configuration_example.rb'] 
   spec.files      = RUBY_FILES + EXTRA_FILES 
   spec.extra_rdoc_files = RDOC_EXTRA 
   spec.files.reject! { |str| str =~ /^\./ } 
