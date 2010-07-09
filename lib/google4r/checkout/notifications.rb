@@ -325,7 +325,9 @@ module Google4R #:nodoc:
         amount = (BigDecimal.new(element.elements['total-charge-amount'].text)*100).to_i
         charge.total_charge_amount = Money.new(amount, currency)  
         
-        charge.latest_charge_fee = ChargeFee.create_from_element(element.elements["latest-charge-fee"])
+        if element.elements["latest-charge-fee"]
+          charge.latest_charge_fee = ChargeFee.create_from_element(element.elements["latest-charge-fee"])
+        end
         
         charge.timestamp = Time.parse(element.elements['timestamp'].text)
 
