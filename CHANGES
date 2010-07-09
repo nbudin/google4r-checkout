@@ -1,5 +1,17 @@
 =google4r-checkout Changelog
 
+== 1.1.beta4 (2010-07-09)
+
+* All changes in this release contributed by George Palmer (thanks very much George!)
+* Make the tax field optional as can be set at Google Account level
+* Add a new command ChargeAndShipOrder (v2.5 of the API although we ended up going with 2.4 but it was fully tested and worked)
+* Ability to get the refund amount available in RefundAmountNotification
+* Ability to get gateway fee information
+
+== 1.1.beta3 (2010-06-28)
+
+* Add required test files to the gem build
+
 == 1.1.beta2 (2010-06-23)
 
 * Make gem compatible with Money 3.x (thanks George Palmer!)
