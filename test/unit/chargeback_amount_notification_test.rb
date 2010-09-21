@@ -63,5 +63,7 @@ class Google4R::Checkout::ChargebackAmountNotificationTest < Test::Unit::TestCas
     assert_equal Time.parse('2006-03-18T20:25:31'), notification.timestamp
     assert_equal(Money.new(22606, 'GBP'), notification.total_chargeback_amount)
     assert_equal(Money.new(22606, 'GBP'), notification.latest_chargeback_amount)
+    assert_equal(Money.new(221, 'GBP'), notification.latest_fee_refund_amount)
+    assert_equal(Money.new(1000, 'GBP'), notification.latest_chargeback_fee_amount)
   end
 end
