@@ -190,7 +190,7 @@ class Google4R::Checkout::CheckoutCommandXmlGeneratorTest < Test::Unit::TestCase
       
         # Check that there is no <warnings> tag in the XML.
         xml_document = REXML::Document.new(res.body)
-        assert 0, xml_document.root.elements.to_a('//warnings').size
+        assert_equal 0, xml_document.root.elements.to_a('//warnings').size
       end      
     end
   
