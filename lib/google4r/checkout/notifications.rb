@@ -415,13 +415,17 @@ module Google4R #:nodoc:
         amount = (BigDecimal.new(element.elements['total-chargeback-amount'].text)*100).to_i
         chargeback.total_chargeback_amount = Money.new(amount, currency)
         
-        currency = element.elements['latest-chargeback-fee-amount'].attributes['currency']
-        amount = (BigDecimal.new(element.elements['latest-chargeback-fee-amount'].text)*100).to_i
-        chargeback.latest_chargeback_fee_amount = Money.new(amount, currency)
+        if element.elements['latest-chargeback-fee-amount']
+          currency = element.elements['latest-chargeback-fee-amount'].attributes['currency']
+          amount = (BigDecimal.new(element.elements['latest-chargeback-fee-amount'].text)*100).to_i
+          chargeback.latest_chargeback_fee_amount = Money.new(amount, currency)
+        end
         
-        currency = element.elements['latest-fee-refund-amount'].attributes['currency']
-        amount = (BigDecimal.new(element.elements['latest-fee-refund-amount'].text)*100).to_i
-        chargeback.latest_fee_refund_amount = Money.new(amount, currency)
+        if element.elements['latest-fee-refund-amount']
+          currency = element.elements['latest-fee-refund-amount'].attributes['currency']
+          amount = (BigDecimal.new(element.elements['latest-fee-refund-amount'].text)*100).to_i
+          chargeback.latest_fee_refund_amount = Money.new(amount, currency)
+        end
         
         chargeback.timestamp = Time.parse(element.elements['timestamp'].text)
 
