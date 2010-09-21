@@ -1,5 +1,10 @@
 =google4r-checkout Changelog
 
+== 1.1.beta5 (2010-09-21)
+
+* Support for chargeback fees and chargeback gateway refund fees, contributed by George Palmer
+* Test::Unit fixes for Ruby 1.9.2
+
 == 1.1.beta4 (2010-07-09)
 
 * All changes in this release contributed by George Palmer (thanks very much George!)
