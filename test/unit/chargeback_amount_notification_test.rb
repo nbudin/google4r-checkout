@@ -46,6 +46,8 @@ class Google4R::Checkout::ChargebackAmountNotificationTest < Test::Unit::TestCas
   <google-order-number>841171949013218</google-order-number>
   <latest-chargeback-amount currency="GBP">226.06</latest-chargeback-amount>
   <total-chargeback-amount currency="GBP">226.06</total-chargeback-amount>
+  <latest-fee-refund-amount currency="GBP">2.21</latest-fee-refund-amount>
+  <latest-chargeback-fee-amount currency="GBP">10.00</latest-chargeback-fee-amount>
   <timestamp>2006-03-18T20:25:31</timestamp>
 </chargeback-amount-notification>
 }

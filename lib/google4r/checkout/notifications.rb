@@ -389,6 +389,12 @@ module Google4R #:nodoc:
       
       # The total amount charged back for an order (Money)
       attr_accessor :total_chargeback_amount
+      
+      # The latest fee for the charge back (Money)
+      attr_accessor :latest_chargeback_fee_amount
+      
+      # The latest transaction fee refund for an on order (Money)
+      attr_accessor :latest_fee_refund_amount
 
       # Factory method that creates a new ChargebackAmountNotification from an REXML::Element instance.
       # Use this to create instances of ChargebackAmountNotification.
@@ -408,6 +414,14 @@ module Google4R #:nodoc:
         currency = element.elements['total-chargeback-amount'].attributes['currency']
         amount = (BigDecimal.new(element.elements['total-chargeback-amount'].text)*100).to_i
         chargeback.total_chargeback_amount = Money.new(amount, currency)
+        
+        currency = element.elements['latest-chargeback-fee-amount'].attributes['currency']
+        amount = (BigDecimal.new(element.elements['latest-chargeback-fee-amount'].text)*100).to_i
+        chargeback.latest_chargeback_fee_amount = Money.new(amount, currency)
+        
+        currency = element.elements['latest-fee-refund-amount'].attributes['currency']
+        amount = (BigDecimal.new(element.elements['latest-fee-refund-amount'].text)*100).to_i
+        chargeback.latest_fee_refund_amount = Money.new(amount, currency)
         
         chargeback.timestamp = Time.parse(element.elements['timestamp'].text)
 
