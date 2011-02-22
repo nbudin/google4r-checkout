@@ -1281,6 +1281,78 @@ module Google4R #:nodoc:
       end
     end
     
+    # ParamaterizedUrl instances are used 
+    class ParameterizedUrl
+      
+      # The third party conversion tracker URL
+      attr_accessor :url
+      
+      # Paramters passed to the third party conversion tracker - Read Only
+      attr_reader :url_parameters
+      
+      def initialize(url)
+        @url = url.to_s
+        @url_parameters = Array.new
+      end
+      
+      # UrlParameters can be created (recommended) using this method by passing in a hash
+      # containing values for the :name of the parameter as is it to be provided to the third
+      # party conversion tracker, and the :parameter_type that has a valued assigned by Google Checkout
+      def create_url_parameter(opts)
+        url_parameter = UrlParameter.new(self,opts)
+        @url_parameters << url_parameter   
+        
+        return url_parameter
+      end
+            
+    end    
+    
+    # Url Paramaters that are available from the Google Checkout API that can be
+    # passed to the third party conversion tracker
+    # 
+    # UrlParameter objects require a parameter name, which is the name of the value to be
+    # provided to the third party conversion tracker, and a parameter type which is
+    # the name of the value, as assigned by Google Checkout.
+    # 
+    # The parameter_type must be a string, and must be a valid type, as defined in the subsequant list
+    # otherwise an Argument Error is thrown. 
+    #
+    # The :name symbol must have an associated value, and be of the String class, other
+    # an argument error will be thrown
+    # Below is a list of defined types, as assigned by Google Checkout.
+    #
+    # buyer-id - A Google-assigned value that uniquely identifies a customer email address.
+    # order-id - A Google-assigned value that uniquely identifies an order. This value is displayed in the Merchant Center for each order. If you have implemented the Notification API, you will also see this value in all Google Checkout notifications.
+    # order-subtotal - The total cost for all of the items in the order including coupons and discounts but excluding taxes and shipping charges.
+    # order-subtotal-plus-tax - The total cost for all of the items in the order, including taxes, coupons and discounts, but excluding shipping charges.
+    # order-subtotal-plus-shipping - The total cost for all of the items in the order, including shipping charges, coupons and discounts, but excluding taxes.
+    # order-total - The total cost for all of the items in the order, including taxes, shipping charges, coupons and discounts.
+    # tax-amount - The total amount of taxes charged for an order.
+    # shipping-amount - The shipping cost associated with an order.
+    # coupon-amount - The total amount of all coupons factored into the order total.
+    # billing-city - The city associated with the order's billing address.
+    # billing-region - The U.S. state associated with the order's billing address.
+    # billing-postal-code - The five-digit U.S. zip code associated with the order's billing address.
+    # billing-country-code - The two-letter ISO 3166 country code associated with the order's billing address.
+    # shipping-city - The city associated with the order's shipping address.
+    # shipping-region - The U.S. state associated with the order's shipping address.
+    # shipping-postal-code - The five-digit U.S. zip code associated with the order's shipping address.
+    # shipping-country-code - The two-letter ISO 3166 country code associated with the order's shipping address.
+    class UrlParameter
+      attr_reader :parameterized_url,:name,:parameter_type
+      
+      VALID_TYPES = ['buyer-id', 'order-id', 'order-subtotal', 'order-subtotal-plus-tax', 'order-subtotal-plus-shipping', 'order-total', 'tax-amount','shipping-amount', 'coupon-amount', 'billing-city', 'billing-region', 'billing-postal-code', 'billing-country-code', 'shipping-city', 'shipping-region', 'shipping-postal-code', 'shipping-country-code'].freeze
+      
+      def initialize(parameterized_url,opts)
+        raise(ArgumentError,"url-parameter type can only be #{VALID_TYPES.join(", ")}") unless VALID_TYPES.include?(opts[:type])      
+        raise(ArgumentError, "Missing or invalid parameter name") unless opts[:name].kind_of?(String)      
+        
+        @parameterized_url = parameterized_url
+        @name = opts[:name]
+        @parameter_type = opts[:type]
+      end          
+    end
+    
     # financial_state
     # REVIEWING - Google Checkout is reviewing the order.
     # CHARGEABLE - The order is ready to be charged.

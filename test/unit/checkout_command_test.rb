@@ -55,6 +55,7 @@ class Google4R::Checkout::CheckoutCommandTest < Test::Unit::TestCase
     assert_equal @frontend, @command.frontend
     assert_kind_of ShoppingCart, @command.shopping_cart
     assert_equal [], @command.shipping_methods
+    assert_equal [], @command.parameterized_urls
     assert_nil @command.edit_cart_url
     assert_nil @command.continue_shopping_url
     assert_nil @command.request_buyer_phone_number
@@ -67,7 +68,7 @@ class Google4R::Checkout::CheckoutCommandTest < Test::Unit::TestCase
       :merchant_calculations_url, :merchant_calculations_url=,
       :accept_merchant_coupons, :accept_merchant_coupons=,
       :accept_gift_certificates, :accept_gift_certificates=,
-      :platform_id, :platform_id=
+      :platform_id, :platform_id=, :parameterized_urls, :create_parameterized_url
     ].each do |symbol|
       assert_respond_to @command, symbol
     end
@@ -113,10 +114,33 @@ class Google4R::Checkout::CheckoutCommandTest < Test::Unit::TestCase
     
       assert @command.shipping_methods.include?(obj)
     end
-  end
+  end 
   
   def test_create_shipping_method_raises_exception_on_invalid_clazz_parameter
     assert_raises(ArgumentError) { @command.create_shipping_method(String) }
+  end
+  
+  def test_create_parameterized_url_method_works_without_block
+    parameterized_url = @command.create_parameterized_url(:url => "http://someurl")
+    
+    assert_kind_of ParameterizedUrl,parameterized_url
+    
+    assert @command.parameterized_urls.include?(parameterized_url)          
+  end
+
+  def test_create_parameterized_url_method_works_with_block
+    obj = nil
+    
+    @command.create_parameterized_url(:url => "http://someurl") do |parameterized_url|      
+      obj = parameterized_url
+      assert_kind_of ParameterizedUrl, obj
+    end    
+    
+    assert @command.parameterized_urls.include?(obj)  
+  end
+  
+  def test_create_parameterized_url_method_raises_exception_on_missing_url
+    assert_raises(ArgumentError) { @command.create_parameterized_url() }    
   end
   
   def test_to_xml_does_not_raise_exception

@@ -197,7 +197,14 @@ module Google4R #:nodoc:
           analytics_element = flow_element.add_element('analytics-data')
           analytics_element.text = command.analytics_data
         end
-
+        
+        # <parameterized-urls>
+        if command.parameterized_urls then
+          parameterized_url_element = flow_element.add_element('parameterized-urls')
+          command.parameterized_urls.each do |parameterized_url|
+            self.process_parameterized_urls(parameterized_url, parameterized_url_element)
+          end
+        end 
       end
       
       # adds the tax-tables to the parent xml element
@@ -549,6 +556,19 @@ module Google4R #:nodoc:
         else
           raise "Area of unknown type: #{area.inspect}."
         end
+      end
+      
+      # Adda the paramterized URL nodes for 3rd party conversion tracking
+      # Adds a <paramertized-url> element to a parent (<parameterized-urls>) element      
+      def process_parameterized_urls(parameterized_url, parent)
+        parameterized_url_node = parent.add_element('parameterized-url')
+        parameterized_url_node.add_attribute('url', parameterized_url.url)
+        parent_parameters_node = parameterized_url_node.add_element('parameters') if parameterized_url.url_parameters
+        parameterized_url.url_parameters.each do |parameter|
+          parameter_node = parent_parameters_node.add_element('url-parameter')
+          parameter_node.add_attribute('name', parameter.name)
+          parameter_node.add_attribute('type',parameter.parameter_type)
+        end        
       end
       
       # Converts a Hash into an XML structure. The keys are converted to tag names. If

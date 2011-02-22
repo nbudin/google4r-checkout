@@ -228,6 +228,14 @@ class Google4R::Checkout::CheckoutCommandIntegrationTest < Test::Unit::TestCase
       end
     end
     
+    # Add a paramterized URL with url parameters
+    command.create_parameterized_url(:url => "http://google.ca") do |parameterized_url|
+      parameterized_url.create_url_parameter(:name => "order", :type => 'order-id')
+    end
+    
+    # Add a parameterized URL without URL parameters
+    command.create_parameterized_url(:url => "http://www.google.com")
+        
     # Add items to the cart.
     1.upto(5) do |i|
       command.shopping_cart.create_item do |item|
