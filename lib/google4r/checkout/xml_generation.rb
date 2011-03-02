@@ -76,6 +76,7 @@ module Google4R #:nodoc:
         ReturnItemsCommand => 'return-items',
         ResetItemsShippingInformationCommand => 'reset-items-shipping-information',
         OrderReportCommand => 'order-list-request',
+        NotificationHistoryRequestCommand => 'notification-history-request',
       }
       
       def initialize(command)
@@ -999,5 +1000,22 @@ module Google4R #:nodoc:
         end
       end
     end
+    
+    class NotificationHistoryReportCommandXmlGenerator < CommandXmlGenerator
+      
+      def initialize(command)
+        @command = command
+      end
+      
+      protected
+      
+      def process_command(command)
+        root = super
+        
+        sn_element = root.add_element('serial-number')
+        sn_element.text = command.serial_number
+      end
+    end
+    
   end
 end

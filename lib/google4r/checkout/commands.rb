@@ -93,12 +93,13 @@ module Google4R #:nodoc:
         url_str += 
           if self.class == CheckoutCommand then
             CHECKOUT_API_URL
-          elsif self.class == OrderReportCommand then
+          elsif self.class == OrderReportCommand || self.class == NotificationHistoryRequestCommand then
             ORDER_REPORT_API_URL
           else
             ORDER_PROCESSING_API_URL
           end
         url_str = url_str % frontend.configuration[:merchant_id]
+
         url = URI.parse(url_str)
         
         request = Net::HTTP::Post.new(url.path)
@@ -136,6 +137,23 @@ module Google4R #:nodoc:
             when 'request-received'
                 serial_number = xml_doc.elements['/request-received'].attributes['serial-number']
                 return serial_number
+            # report history notifications
+            when 'order-summary'
+                raise 'Response type OrderSummaryResponse not implemented'
+            when 'new-order-notification'
+                return NewOrderNotification.create_from_element xml_doc.root, @frontend
+            when 'risk-information-notification'
+                return RiskInformationNotification.create_from_element xml_doc.root, @frontend
+            when 'order-state-change-notification'
+                return OrderStateChangeNotification.create_from_element xml_doc.root, @frontend
+            when 'charge-amount-notification'
+                return ChargeAmountNotification.create_from_element xml_doc.root, @frontend
+            when 'authorization-amount-notification'
+                return AuthorizationAmountNotification.create_from_element xml_doc.root, @frontend
+            when 'refund-amount-notification'
+                return RefundAmountNotification.create_from_element xml_doc.root, @frontend
+            when 'chargeback-amount-notification'
+                return ChargebackAmountNotification.create_from_element xml_doc.root, @frontend
             else
                 raise "Unknown response:\n--\n#{xml_doc.to_s}\n--"
             end
@@ -636,6 +654,24 @@ module Google4R #:nodoc:
       
       def to_xml
         ReturnOrderReportCommandXmlGenerator.new(self).generate
+      end
+    end
+    
+    # The <notification-history-request> command allows you to receive
+    # a notification type node refered to by the serial number posted by
+    # google to the notification callback URL
+    class NotificationHistoryRequestCommand < Command
+      
+      attr_reader :serial_number
+      
+      def initialize(frontend, serial_number)
+        super frontend
+        
+        @serial_number = serial_number
+      end
+      
+      def to_xml
+        NotificationHistoryReportCommandXmlGenerator.new(self).generate
       end
     end
   end

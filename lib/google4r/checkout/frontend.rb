@@ -217,6 +217,10 @@ module Google4R #:nodoc:
       def create_order_report_command(start_date, end_date)
         return OrderReportCommand.new(self, start_date, end_date)
       end
+      
+      def create_notification_history_request_command(serial_number)
+        return NotificationHistoryRequestCommand.new(self, serial_number)
+      end
     end
   end
 end
