@@ -240,6 +240,8 @@ module Google4R #:nodoc:
       # An array of ShippingMethod objects of this CheckoutCommand. Use 
       # #create_shipping_method to create new shipping methods.
       attr_reader :shipping_methods
+      
+      attr_reader :parameterized_urls
 
       # The URL at where the cart can be edited (String, optional).
       attr_accessor :edit_cart_url
@@ -282,6 +284,7 @@ module Google4R #:nodoc:
         super(frontend)
         @shopping_cart = ShoppingCart.new(self)
         @shipping_methods = Array.new
+        @parameterized_urls = Array.new
         if frontend.tax_table_factory
           @tax_tables = frontend.tax_table_factory.effective_tax_tables_at(Time.new)
         end
@@ -313,6 +316,26 @@ module Google4R #:nodoc:
         
         return shipping_method
       end
+      
+      # Use this method to create a new parameterized_url object. It requires the URL
+      # to be passed in the 'opts' hash. It will create a new instance of the 
+      # paramterized URL object. 
+      # 
+      # Raises an argument error if the URL passed in the opts hash is not a String
+      #
+      # To find more information on 3rd party conversion tracking visit the API documentation
+      # http://code.google.com/apis/checkout/developer/checkout_pixel_tracking.html 
+      def create_parameterized_url(opts, &block)
+        raise(ArgumentError, "Url option required") unless opts[:url].kind_of?(String)
+
+        parameterized_url = ParameterizedUrl.new(opts[:url])
+        @parameterized_urls << parameterized_url
+
+        yield(parameterized_url) if block_given?
+
+        return parameterized_url
+      end
+      
     end
 
     # CheckoutRedirectResponse instances are returned when a CheckoutCommand is successfully
