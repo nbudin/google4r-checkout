@@ -51,6 +51,18 @@ class Google4R::Checkout::ChargebackAmountNotificationTest < Test::Unit::TestCas
   <timestamp>2006-03-18T20:25:31</timestamp>
 </chargeback-amount-notification>
 }
+
+    @example2_xml = %q{
+<?xml version="1.0" encoding="UTF-8"?>
+<chargeback-amount-notification xmlns="http://checkout.google.com/schema/2"
+  serial-number="bea6bc1b-e1e2-44fe-80ff-0180e33a2614">
+  <google-order-number>841171949013218</google-order-number>
+  <latest-chargeback-amount currency="GBP">226.06</latest-chargeback-amount>
+  <total-chargeback-amount currency="GBP">226.06</total-chargeback-amount>
+  <timestamp>2006-03-18T20:25:31</timestamp>
+</chargeback-amount-notification>
+}
+
   end
   
   def test_create_from_element_works_correctly
@@ -66,4 +78,17 @@ class Google4R::Checkout::ChargebackAmountNotificationTest < Test::Unit::TestCas
     assert_equal(Money.new(221, 'GBP'), notification.latest_fee_refund_amount)
     assert_equal(Money.new(1000, 'GBP'), notification.latest_chargeback_fee_amount)
   end
+
+  def test_create_from_minimal_element_works_correctly
+    root = REXML::Document.new(@example2_xml).root
+    
+    notification = ChargebackAmountNotification.create_from_element(root, @frontend)
+
+    assert_equal 'bea6bc1b-e1e2-44fe-80ff-0180e33a2614', notification.serial_number
+    assert_equal '841171949013218', notification.google_order_number
+    assert_equal Time.parse('2006-03-18T20:25:31'), notification.timestamp
+    assert_equal(Money.new(22606, 'GBP'), notification.total_chargeback_amount)
+    assert_equal(Money.new(22606, 'GBP'), notification.latest_chargeback_amount)
+  end
+
 end
