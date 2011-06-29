@@ -133,6 +133,6 @@ Here is an example of how one might do this in Rails:
 
 ## Dependencies
 
-The unit tests use Mocha so you have to install the gem "mocha" to run the tests. You will also need the money gem library.
+google4r-checkout makes extensive use of the money gem library, which is a required dependency.  The unit tests also use Mocha and Nokogiri, which should be automatically pulled down by Bundler.
 
 google4r-checkout doesn't depend on any particular Ruby web framework, so it should work with any version of Rails, Sinatra, Camping, or even no web framework at all.
