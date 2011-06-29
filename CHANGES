@@ -1,5 +1,11 @@
 =google4r-checkout Changelog
 
+== 1.1.0 (2011-06-29)
+
+* Support for newer refund-notification XML format, contributed by Chris Parrish
+* Update README to remove outdated Rails gem locking technique and add more examples
+* Modernize gem build
+
 == 1.1.beta5 (2010-09-21)
 
 * Support for chargeback fees and chargeback gateway refund fees, contributed by George Palmer
