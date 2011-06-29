@@ -368,9 +368,11 @@ module Google4R #:nodoc:
         amount = (BigDecimal.new(element.elements['total-refund-amount'].text)*100).to_i
         refund.total_refund_amount = Money.new(amount, currency)
         
-        currency = element.elements['latest-fee-refund-amount'].attributes['currency']
-        amount = (BigDecimal.new(element.elements['latest-fee-refund-amount'].text)*100).to_i
-        refund.latest_fee_refund_amount = Money.new(amount, currency)
+        if element.elements['latest-fee-refund-amount']
+          currency = element.elements['latest-fee-refund-amount'].attributes['currency']
+          amount = (BigDecimal.new(element.elements['latest-fee-refund-amount'].text)*100).to_i
+          refund.latest_fee_refund_amount = Money.new(amount, currency)
+        end
         
         refund.timestamp = Time.parse(element.elements['timestamp'].text)
 
