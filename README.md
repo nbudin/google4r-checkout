@@ -46,27 +46,93 @@ The file should contain content similar to:
         :use_sandbox => true
       }
 
+## Sending Commands to Google Checkout
+
+To send commands to Google Checkout, use a Google4R::Checkout::Frontend object.  The Frontend class contains a variety of methods for easily generating several types of commands, including checkout, cancel_order, charge_and_ship_order, etc.
+
+Here's an example:
+
+      # Create the Frontend from our configuration
+      frontend = Google4R::Checkout::Frontend.new(
+        :merchant_id => conf['merchant_id'],
+        :merchant_key => conf['merchant_key'],
+        :use_sandbox => conf['use_sandbox']
+      )
+      
+      # Create a new checkout command (to place an order)
+      cmd = frontend.create_checkout_command
+      
+      # Add an item to the command's shopping cart
+      cmd.shopping_cart.create_item do |item|
+        item.name = "2-liter bottle of Diet Pepsi"
+        item.quantity = 100
+        item.unit_price = Money.new(1.99, "USD")
+      end
+      
+      # Send the command to Google and capture the HTTP response
+      response = cmd.send_to_google_checkout
+      
+      # Redirect the user to Google Checkout to complete the transaction
+      redirect_to response.redirect_url
+
+For more information, see the Frontend class's RDocs and the Google Checkout API documentation.
+
+## Writing Responders
+
+To receive notifications from Google Checkout, you'll need to write an action in your web application to respond to Google Checkout XML requests.  The basic strategy for this is to use a NotificationHandler object (which can be obtained through a Frontend object) to parse the HTTP request, then handle the resulting Notification object according to its class.  You should then generate a NotificationAcknowledgment and return it as the response.
+
+It's a good idea to verify the HTTP authentication headers for incoming requests.  This will be a combination of your Merchant ID and Merchant Key.
+
+Here is an example of how one might do this in Rails:
+
+    class PaymentNotificationController < ApplicationController
+      before_filter :verify_merchant_credentials, :only => [:google]
+  
+      def google
+        frontend = Google4R::Checkout::Frontend.new(
+          :merchant_id => conf['merchant_id'],
+          :merchant_key => conf['merchant_key'],
+          :use_sandbox => conf['use_sandbox']
+        )
+        handler = frontend.create_notification_handler
+        
+        begin
+           notification = handler.handle(request.raw_post) # raw_post contains the XML
+        rescue Google4R::Checkout::UnknownNotificationType
+           # This can happen if Google adds new commands and Google4R has not been
+           # upgraded yet. It is not fatal.
+           logger.warn "Unknown notification type"
+           return render :text => 'ignoring unknown notification type', :status => 200
+        end
+        
+        case notification
+        when Google4R::Checkout::NewOrderNotification then
+          
+          # handle a NewOrderNotification
+          
+        when Google4R::Checkout::OrderStateChangeNotification then
+          
+          # handle an OrderStateChangeNotification
+          
+        else
+          return head :text => "I don't know how to handle a #{notification.class}", :status => 500
+        end
+    
+        notification_acknowledgement = Google4R::Checkout::NotificationAcknowledgement.new(notification)
+        render :xml => notification_acknowledgement, :status => 200
+      end
+  
+      private
+      # make sure the request authentication headers use the right merchant_id and merchant_key
+      def verify_merchant_credentials
+        authenticate_or_request_with_http_basic("Google Checkout notification endpoint") do |merchant_id, merchant_key|
+          (conf['merchant_id'].to_s == merchant_id.to_s) and (conf['merchant_key'].to_s == merchant_key.to_s)
+        end
+      end
+    end
+
 ## Dependencies
 
 The unit tests use Mocha so you have to install the gem "mocha" to run the tests. You will also need the money gem library.
 
-## How To: Freeze a google4r version in a Rails project
-
-<code>rake rails:freeze:gems</code> only works for the Rails gems. So, how do you freeze your own gems like google4r? It turns out to be pretty straightforward:
-
-    cd RAILS_ROOT
-    cd vendor
-    gem unpack google4r-checkout
-    ls 
-    # ... google4r-checkout-0.1.1 ...
-
-Then, open RAILS_ROOT/config/environment.rb in your favourite text editor and add the following lines at the top of the file just below <code>require File.join(File.dirname(__FILE__), 'boot')</code>:
-
-    # Freeze non-Rails gem.
-    Dir.glob(File.join(RAILS_ROOT, 'vendor', '*', 'lib')) do |path|
-      $LOAD_PATH << path
-    end
-
-Now you can use the following in your own code:
-
-    require 'google4r/checkout'
+google4r-checkout doesn't depend on any particular Ruby web framework, so it should work with any version of Rails, Sinatra, Camping, or even no web framework at all.
