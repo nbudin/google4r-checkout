@@ -328,6 +328,11 @@ module Google4R #:nodoc:
           result.create_digital_content(DigitalContent.create_from_element(digital_content_element))
         end
         
+        subscription_element = element.elements['subscription']
+        if not subscription_element.nil?
+          result.create_subscription(Subscription.create_from_element(subscription_element))
+        end
+        
         return result
       end
 
@@ -479,11 +484,11 @@ module Google4R #:nodoc:
           result.start_date = Time.iso8601(element.attributes['start-date']) rescue nil
           result.type = element.attributes['type'] rescue nil
           
-          element.elements['payments/subscription-payment'].each do |payment_element|
-            result.payments << SubscriptionPayment.create_from_element(subscription, payment_element)
+          element.elements.each('payments/subscription-payment') do |payment_element|
+            result.payments << SubscriptionPayment.create_from_element(result, payment_element)
           end
           
-          element.elements['recurrent-item'].each do |item_element|
+          element.elements.each('recurrent-item') do |item_element|
             result.recurrent_items << Item.create_from_element(item_element)
           end
           
@@ -521,7 +526,7 @@ module Google4R #:nodoc:
           end
           
           def self.create_from_element(subscription, element)
-            result = SubscriptionPayment.new
+            result = SubscriptionPayment.new(subscription)
             result.subscription = subscription
             result.times = element.attributes['times'].to_i rescue nil
             
