@@ -52,16 +52,14 @@ class Google4R::Checkout::NotificationAcknowledgementTest < Test::Unit::TestCase
   end
     
   def test_to_xml_works_as_expected
-    ack = NotificationAcknowledgement.new
-    str = %q{<?xml version='1.0' encoding='UTF-8'?><notification-acknowledgment xmlns='http://checkout.google.com/schema/2'/>}
-    assert_equal str, ack.to_xml
+    ack = Nokogiri.parse(NotificationAcknowledgement.new.to_xml).css('notification-acknowledgment').first
+    assert_equal "http://checkout.google.com/schema/2", ack.namespace.href
   end
   
   def test_to_xml_with_serial_number
     root = REXML::Document.new(@example_xml).root
     notification = ChargebackAmountNotification.create_from_element(root, @frontend)
-    ack = NotificationAcknowledgement.new(notification)
-    str = %q{<?xml version='1.0' encoding='UTF-8'?><notification-acknowledgment serial-number='bea6bc1b-e1e2-44fe-80ff-0180e33a2614' xmlns='http://checkout.google.com/schema/2'/>}
-    assert_equal str, ack.to_xml
+    ack = Nokogiri.parse(NotificationAcknowledgement.new(notification).to_xml).css('notification-acknowledgment').first
+    assert_equal "bea6bc1b-e1e2-44fe-80ff-0180e33a2614", ack.attr('serial-number')
   end
 end
