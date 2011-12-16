@@ -1,5 +1,11 @@
 =google4r-checkout Changelog
 
+== 1.1.1 (2011-12-16)
+
+* Bug fix for subscriptions not being processed, contributed by Larry Salibra
+* Automated testing with Travis
+* Officially support JRuby
+
 == 1.1.0 (2011-06-29)
 
 * Support for newer refund-notification XML format, contributed by Chris Parrish
