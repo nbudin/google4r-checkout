@@ -1,4 +1,3 @@
-test/frontend_configuration.rb
 .bundle/config
 Gemfile.lock
 pkg/*
