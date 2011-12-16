@@ -1,4 +1,4 @@
-# google4r/checkout
+# google4r/checkout [![Build Status](https://secure.travis-ci.org/nbudin/google4r-checkout.png)](http://travis-ci.org/nbudin/google4r-checkout)
 
 google4r/checkout is a library to access the Google Checkout API.
 
