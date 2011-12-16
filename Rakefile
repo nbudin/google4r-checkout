@@ -1,7 +1,6 @@
 # google4r-checkout Rakefile
 
-require 'bundler'
-Bundler.setup
+require 'bundler/gem_tasks'
 
 require 'rake'
 require 'rake/testtask'
