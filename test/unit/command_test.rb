@@ -56,12 +56,15 @@ class Google4R::Checkout::CommandTest < Test::Unit::TestCase
   def test_sending_fails_if_certificate_validation_fails
     OpenSSL::SSL::SSLSocket.any_instance.stubs(:connect).raises(OpenSSL::SSL::SSLError, 'certificate verify failed')
     
-    if RUBY_PLATFORM == "java"
+    exc_type = case RUBY_PLATFORM
+    when "java"
       # jruby-openssl throws an EOFError instead, for some reason
-      assert_raises { @command.send_to_google_checkout }
+      EOFError
     else
-      assert_raises(OpenSSL::SSL::SSLError) { @command.send_to_google_checkout }
+      OpenSSL::SSL::SSLError
     end
+    
+    assert_raise(exc_type) { @command.send_to_google_checkout }
   end
   
   def test_instantiate_abstract_class
