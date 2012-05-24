@@ -102,7 +102,7 @@ module Google4R #:nodoc:
         raise "Missing configuration setting: merchant_id"  if configuration[:merchant_id].nil?
         raise "Missing configuration setting: merchant_key" if configuration[:merchant_key].nil?
         raise "Missing configuration setting: use_sandbox"  if configuration[:use_sandbox].nil?
-        raise "Invalid configuration setting: purchase_type" unless[Google4R::Checkout::Frontend::PURCHASE_TYPE_DONATION, Google4R::Checkout::Frontend::PURCHASE_TYPE_ORDER, nil].include?(configuration[:purchase_type])
+        raise "Invalid configuration setting: purchase_type" unless[PURCHASE_TYPE_DONATION, PURCHASE_TYPE_ORDER, nil].include?(configuration[:purchase_type])
 
         configuration[:purchase_type] = PURCHASE_TYPE_DONATION if configuration[:purchase_type].nil?
         
