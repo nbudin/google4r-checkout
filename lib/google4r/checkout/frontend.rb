@@ -104,7 +104,7 @@ module Google4R #:nodoc:
         raise "Missing configuration setting: use_sandbox"  if configuration[:use_sandbox].nil?
         raise "Invalid configuration setting: purchase_type" unless[PURCHASE_TYPE_DONATION, PURCHASE_TYPE_ORDER, nil].include?(configuration[:purchase_type])
 
-        configuration[:purchase_type] = PURCHASE_TYPE_DONATION if configuration[:purchase_type].nil?
+        configuration[:purchase_type] = PURCHASE_TYPE_ORDER if configuration[:purchase_type].nil?
         
         @configuration = configuration.dup.freeze
       end
