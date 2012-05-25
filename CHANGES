@@ -1,5 +1,9 @@
 =google4r-checkout Changelog
 
+== 1.1.2 (2012-05-24)
+
+* Added support for donation processing
+
 == 1.1.1 (2011-12-16)
 
 * Bug fix for subscriptions not being processed, contributed by Larry Salibra

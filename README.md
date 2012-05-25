@@ -2,6 +2,8 @@
 
 google4r/checkout is a library to access the Google Checkout API.
 
+It currently supports version 2.3 of the API and subscription beta API.
+
 ### License
 
 google4r itself is distributed under an MIT style license.
