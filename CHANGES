@@ -1,8 +1,8 @@
 =google4r-checkout Changelog
 
-== 1.1.2 (2012-05-24)
+== 1.1.2 (2012-05-31)
 
-* Added support for donation processing
+* Added support for donation processing, contributed by Paul Schreiber
 
 == 1.1.1 (2011-12-16)
 

@@ -95,7 +95,7 @@ module Google4R #:nodoc:
             PRODUCTION_URL_PREFIX
           end
         url_str += 
-          if frontend.configuration[:purchase_type] == Google4R::Checkout::Frontend::PURCHASE_TYPE_DONATION
+          if frontend.configuration[:purchase_type] == :donation
             if self.class == CheckoutCommand then
               DONATE_CHECKOUT_API_URL
             elsif self.class == OrderReportCommand || self.class == NotificationHistoryRequestCommand then
