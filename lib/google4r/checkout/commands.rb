@@ -46,11 +46,15 @@ module Google4R #:nodoc:
       # is to be put in via String#%.
       PRODUCTION_URL_PREFIX = 'https://checkout.google.com/'
       
+      # Orders
       CHECKOUT_API_URL = 'api/checkout/v2/merchantCheckout/Merchant/%s'
-      
       ORDER_PROCESSING_API_URL = 'api/checkout/v2/request/Merchant/%s'
-
       ORDER_REPORT_API_URL = 'api/checkout/v2/reports/Merchant/%s'
+
+      # Donations
+      DONATE_CHECKOUT_API_URL = 'api/checkout/v2/merchantCheckout/Donations/%s'
+      DONATE_ORDER_PROCESSING_API_URL = 'api/checkout/v2/request/Donations/%s'
+      DONATE_ORDER_REPORT_API_URL = 'api/checkout/v2/reports/Donations/%s'
 
       
       # The Frontent class that was used to create this CheckoutCommand and whose
@@ -91,12 +95,22 @@ module Google4R #:nodoc:
             PRODUCTION_URL_PREFIX
           end
         url_str += 
-          if self.class == CheckoutCommand then
-            CHECKOUT_API_URL
-          elsif self.class == OrderReportCommand || self.class == NotificationHistoryRequestCommand then
-            ORDER_REPORT_API_URL
+          if frontend.configuration[:purchase_type] == Google4R::Checkout::Frontend::PURCHASE_TYPE_DONATION
+            if self.class == CheckoutCommand then
+              DONATE_CHECKOUT_API_URL
+            elsif self.class == OrderReportCommand || self.class == NotificationHistoryRequestCommand then
+              DONATE_ORDER_REPORT_API_URL
+            else
+              DONATE_ORDER_PROCESSING_API_URL
+            end
           else
-            ORDER_PROCESSING_API_URL
+            if self.class == CheckoutCommand then
+              CHECKOUT_API_URL
+            elsif self.class == OrderReportCommand || self.class == NotificationHistoryRequestCommand then
+              ORDER_REPORT_API_URL
+            else
+              ORDER_PROCESSING_API_URL
+            end
           end
         url_str = url_str % frontend.configuration[:merchant_id]
 

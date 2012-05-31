@@ -38,6 +38,17 @@ module Google4R #:nodoc:
     #
     #   frontend = Google4R::Checkout::Frontend.new(configuration)
     #
+    # === Donations
+    #
+    # If you are processing orders for a Google-verified 501(c)(3) or 510(c)(6) nonprofit,
+    # you can collect donations instead of orders. To do so, specify the :purchase_type option
+    # as Google4R::Checkout::Frontend::PURCHASE_TYPE_DONATION.
+    #
+    #   configuration = { :merchant_id => '123456789', :merchant_key => '12345abcd',
+    #                     :purchase_type => Google4R::Checkout::Frontend::PURCHASE_TYPE_DONATION }
+    #
+    #   frontend = Google4R::Checkout::Frontend.new(configuration)
+    #
     # == Tax Table Factory
     #
     # You have to set the tax_table_factory attribute of every Frontend object before you
@@ -74,6 +85,9 @@ module Google4R #:nodoc:
     #   # ...
     #   handler = frontend.create_notification_handler
     class Frontend
+      PURCHASE_TYPE_DONATION = 10
+      PURCHASE_TYPE_ORDER    = 20
+      
       # The configuration for this Frontend class. It will be used by all classes created
       # by this Frontend instance (Hash).
       attr_reader :configuration
@@ -88,6 +102,9 @@ module Google4R #:nodoc:
         raise "Missing configuration setting: merchant_id"  if configuration[:merchant_id].nil?
         raise "Missing configuration setting: merchant_key" if configuration[:merchant_key].nil?
         raise "Missing configuration setting: use_sandbox"  if configuration[:use_sandbox].nil?
+        raise "Invalid configuration setting: purchase_type" unless[PURCHASE_TYPE_DONATION, PURCHASE_TYPE_ORDER, nil].include?(configuration[:purchase_type])
+
+        configuration[:purchase_type] = PURCHASE_TYPE_ORDER if configuration[:purchase_type].nil?
         
         @configuration = configuration.dup.freeze
       end
