@@ -1063,6 +1063,11 @@ module Google4R #:nodoc:
           end
         end
 
+        if command.next_page_token
+          element = root.add_element('next-page-token')
+          element.text = command.next_page_token
+        end
+
       end
     end
   end
