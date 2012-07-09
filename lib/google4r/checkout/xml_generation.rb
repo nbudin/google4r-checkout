@@ -1055,6 +1055,14 @@ module Google4R #:nodoc:
           end
         end
 
+        if command.order_numbers.present?
+          on_element = root.add_element('order-numbers')
+          command.order_numbers.each do |order_number|
+            element = on_element.add_element('google-order-number')
+            element.text = order_number
+          end
+        end
+
       end
     end
   end
