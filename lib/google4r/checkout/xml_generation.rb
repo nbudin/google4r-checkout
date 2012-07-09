@@ -1020,22 +1020,33 @@ module Google4R #:nodoc:
         end
       end
     end
-    
+
     class NotificationHistoryReportCommandXmlGenerator < CommandXmlGenerator
-      
+
       def initialize(command)
         @command = command
       end
-      
+
       protected
-      
+
       def process_command(command)
         root = super
-        
-        sn_element = root.add_element('serial-number')
-        sn_element.text = command.serial_number
+
+        if command.serial_number
+          sn_element = root.add_element('serial-number')
+          sn_element.text = command.serial_number
+        end
+
+        if command.start_time
+          sn_element = root.add_element('start-time')
+          sn_element.text = command.start_time.xmlschema
+        end
+
+        if command.end_time
+          sn_element = root.add_element('end-time')
+          sn_element.text = command.end_time.xmlschema
+        end
       end
     end
-    
   end
 end
