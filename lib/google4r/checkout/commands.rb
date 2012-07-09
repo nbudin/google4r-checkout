@@ -169,7 +169,8 @@ module Google4R #:nodoc:
             when 'chargeback-amount-notification'
                 return ChargebackAmountNotification.create_from_element xml_doc.root, @frontend
             when 'notification-history-response'
-                return xml_doc.root.elements[1].elements.map do |element| 
+                next_page_token = xml_doc.root.elements['next-page-token'].try(:value)
+                notifications = xml_doc.root.elements['notifications'].elements.map do |element| 
                   case element.name
                     when 'new-order-notification'
                       NewOrderNotification.create_from_element element, @frontend
@@ -187,6 +188,7 @@ module Google4R #:nodoc:
                       ChargebackAmountNotification.create_from_element element, @frontend
                   end
                 end
+                { :notifications => notifications, :next_page_token => next_page_token }
             else
                 raise "Unknown response:\n--\n#{xml_doc.to_s}\n--"
             end
