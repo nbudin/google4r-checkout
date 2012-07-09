@@ -718,7 +718,7 @@ module Google4R #:nodoc:
     # google to the notification callback URL
     class NotificationHistoryRequestCommand < Command
       
-      attr_reader :serial_number, :start_time, :end_time
+      attr_reader :serial_number, :start_time, :end_time, :notification_types
       
       def initialize(frontend, args)
         super frontend
@@ -727,6 +727,7 @@ module Google4R #:nodoc:
           @serial_number = args[:serial_number]
           @start_time = args[:start_time]
           @end_time = args[:end_time]
+          @notification_types = args[:notification_types]
         else
           @serial_number = args
         end

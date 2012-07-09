@@ -1033,19 +1033,28 @@ module Google4R #:nodoc:
         root = super
 
         if command.serial_number
-          sn_element = root.add_element('serial-number')
-          sn_element.text = command.serial_number
+          element = root.add_element('serial-number')
+          element.text = command.serial_number
         end
 
         if command.start_time
-          sn_element = root.add_element('start-time')
-          sn_element.text = command.start_time.xmlschema
+          element = root.add_element('start-time')
+          element.text = command.start_time.xmlschema
         end
 
         if command.end_time
-          sn_element = root.add_element('end-time')
-          sn_element.text = command.end_time.xmlschema
+          element = root.add_element('end-time')
+          element.text = command.end_time.xmlschema
         end
+
+        if command.notification_types.present?
+          nt_element = root.add_element('notification-types')
+          command.notification_types.each do |notification_type|
+            element = nt_element.add_element('notification-type')
+            element.text = notification_type
+          end
+        end
+
       end
     end
   end
