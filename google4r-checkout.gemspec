@@ -7,8 +7,8 @@ Gem::Specification.new do |gem|
   google4r-checkout is a lightweight, framework-agnostic Ruby library to access the Google Checkout service and implement 
   notification handlers. It exposes object-oriented wrappers for all of Google Checkout's API commands and notifications.
   EOF
-  gem.version = "1.1.2"
-  gem.authors = ["Tony Chan", "Dan Dukeson", "Nat Budin", "George Palmer", "Daniel Higham", "Johnathan Niziol", "Chris Parrish", "Larry Salibra", "Paul Schreiber"]
+  gem.version = "1.1.3"
+  gem.authors = ["Tony Chan", "Dan Dukeson", "Nat Budin", "George Palmer", "Daniel Higham", "Johnathan Niziol", "Chris Parrish", "Larry Salibra", "Paul Schreiber", "Ben Hutton"]
   gem.email = "natbudin@gmail.com"
   gem.homepage = "http://github.com/nbudin/google4r-checkout"
 

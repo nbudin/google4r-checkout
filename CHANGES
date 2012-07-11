@@ -1,5 +1,9 @@
 =google4r-checkout Changelog
 
+== 1.1.3 (2012-07-11)
+
+* More complete Notification History API support, contributed by Ben Hutton
+
 == 1.1.2 (2012-05-31)
 
 * Added support for donation processing, contributed by Paul Schreiber
