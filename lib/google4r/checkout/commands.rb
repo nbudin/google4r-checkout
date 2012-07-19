@@ -208,6 +208,12 @@ module Google4R #:nodoc:
               :serial_number => xml_doc.elements['/error'].attributes['serial-number'],
               :message       => xml_doc.elements['/error/error-message/text()'].value
             }
+            
+          result = hash[:message].match(/Seller Account (.+?) is not active/)
+          if result.present?
+            hash[:account_number] = result[1]
+            raise InactiveAccountError.new(hash)
+          end
           
           raise GoogleCheckoutError.new(hash)
         when Net::HTTPRedirection, Net::HTTPServerError, Net::HTTPInformation then

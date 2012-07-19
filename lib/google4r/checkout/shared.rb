@@ -57,6 +57,9 @@ module Google4R #:nodoc:
         "GoogleCheckoutError: message = '#{@message}', response code = '#{@response_code}', serial number = '#{@serial_number}'."
       end
     end
+    
+    # This is thrown when the seller's Google account is inactive
+    class InactiveAccountError < GoogleCheckoutError
 
     # ShoppingCart instances are containers for Item instances. You can add
     # Items to the class using #create_item (see the documentation of this
