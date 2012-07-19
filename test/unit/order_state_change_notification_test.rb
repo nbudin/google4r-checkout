@@ -121,7 +121,7 @@ class Google4R::Checkout::OrderStateChangeNotificationTest < Test::Unit::TestCas
       notification = OrderStateChangeNotification.create_from_element(REXML::Document.new(xml_str).root, @frontend)
     
       @data.each do |key, value|
-        next if skip_reason and key == :reason
+        next if skip_reason && key == :reason
         
         if key == :timestamp then
           assert_in_delta @data[:timestamp].to_f, notification.timestamp.to_f, 1

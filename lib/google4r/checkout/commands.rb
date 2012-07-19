@@ -199,7 +199,7 @@ module Google4R #:nodoc:
         when Net::HTTPClientError then
           xml_doc = REXML::Document.new(result.body)
           
-          if xml_doc.elements['/error'].attributes['serial-number'].nil? or xml_doc.elements['/error/error-message/text()'].nil? then
+          if xml_doc.elements['/error'].attributes['serial-number'].nil? || xml_doc.elements['/error/error-message/text()'].nil? then
             raise "Invalid response from Google:\n---\n#{result.body}\n---"
           end
           

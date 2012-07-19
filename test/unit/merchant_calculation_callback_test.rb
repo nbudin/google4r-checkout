@@ -117,7 +117,7 @@ class Google4R::Checkout::MerchantCalculationCallbackTest < Test::Unit::TestCase
     
     expect = ShoppingCart.stubs(:create_from_element)
     expect.times(1).returns(:shopping_cart)
-    expect.with { |element, owner| element.name == 'shopping-cart' and owner.kind_of?(MerchantCalculationCallback) }
+    expect.with { |element, owner| element.name == 'shopping-cart' && owner.kind_of?(MerchantCalculationCallback) }
     
     expect = AnonymousAddress.stubs(:create_from_element)
     expect.times(2).returns(:anonymous_address, :anonymous_address2)
