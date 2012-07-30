@@ -647,6 +647,7 @@ module Google4R #:nodoc:
     # ShippingAdjustments represent the chosen shipping method.
     class ShippingAdjustment
       MERCHANT_CALCULATED = "MERCHANT_CALCULATED".freeze
+      CARRIER_CALCULATED = "CARRIER_CALCULATED".freeze
       FLAT_RATE = "FLAT_RATE".freeze
       PICKUP = "PICKUP".freeze
       
@@ -674,6 +675,8 @@ module Google4R #:nodoc:
             PICKUP
           when 'merchant-calculated-shipping-adjustment' then
             MERCHANT_CALCULATED
+          when 'carrier-calculated-shipping-adjustment' then
+            CARRIER_CALCULATED
           else
             raise "Unexpected shipping adjustment '#{element.name}'"
           end
