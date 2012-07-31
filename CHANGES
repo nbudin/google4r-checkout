@@ -1,5 +1,9 @@
 =google4r-checkout Changelog
 
+== 1.1.4 (2012-07-31)
+
+* Carrier shipping adjustment support, contributed by Ben Hutton
+
 == 1.1.3 (2012-07-11)
 
 * More complete Notification History API support, contributed by Ben Hutton
