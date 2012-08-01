@@ -83,6 +83,11 @@ class Google4R::Checkout::NotificationHandlerTest < Test::Unit::TestCase
       [
         '<unknown-notification />'
       ]
+
+    @non_xmls = 
+      [
+        'some-key-value=pair'
+      ]
   end
   
   def test_handler_gets_initialized_correctly
@@ -108,6 +113,12 @@ class Google4R::Checkout::NotificationHandlerTest < Test::Unit::TestCase
   def test_raises_exception_on_unknown_notifications
     @xmls_with_unknown_tags.each do |xml_str|
       assert_raises(UnknownNotificationType) { @notification_handler.handle(xml_str) }
+    end
+  end
+
+  def test_raises_exception_on_non_xml_notifications
+    @non_xmls.each do |str|
+      assert_raises(UnknownNotificationType) { @notification_handler.handle(str) }
     end
   end
 end
