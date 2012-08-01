@@ -330,7 +330,7 @@ module Google4R #:nodoc:
         
         subscription_element = element.elements['subscription']
         if not subscription_element.nil?
-          result.create_subscription(Subscription.create_from_element(subscription_element))
+          result.create_subscription(Subscription.create_from_element(subscription_element, result))
         end
         
         return result
@@ -477,7 +477,7 @@ module Google4R #:nodoc:
           @recurrent_items = []
         end
         
-        def self.create_from_element(element)
+        def self.create_from_element(element, shopping_cart)
           result = Subscription.new
           result.no_charge_after = Time.iso8601(element.attributes['no-charge-after']) rescue nil
           result.period = element.attributes['period'] rescue nil
@@ -489,7 +489,7 @@ module Google4R #:nodoc:
           end
           
           element.elements.each('recurrent-item') do |item_element|
-            result.recurrent_items << Item.create_from_element(item_element)
+            result.recurrent_items << Item.create_from_element(item_element, shopping_cart)
           end
           
           return result
