@@ -1,5 +1,9 @@
 =google4r-checkout Changelog
 
+== 1.1.6 (2012-08-01)
+
+* Bugfixes when creating recurring subscriptions parsed from XML, contributed by James Martin
+
 == 1.1.5 (2012-08-01)
 
 * Raise a more informative exception for non-XML notifications, contributed by James Martin
