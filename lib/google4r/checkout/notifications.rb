@@ -101,6 +101,9 @@ module Google4R #:nodoc:
     #    # ...
     #  end
     class NotificationHandler
+      class NonXmlNotification
+      end
+
       # The Frontend object that created this NotificationHandler
       attr_accessor :frontend
       
@@ -117,7 +120,7 @@ module Google4R #:nodoc:
       # TODO: Add parsing of other notifications here (merchant calculation and the like) when they have been implemented.
       #++
       def handle(xml_str)
-        root = REXML::Document.new(xml_str).root
+        root = REXML::Document.new(xml_str).root || NonXmlNotification
         
         case root.name
         when 'new-order-notification' then
