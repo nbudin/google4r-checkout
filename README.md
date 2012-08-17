@@ -121,7 +121,7 @@ Here is an example of how one might do this in Rails:
         end
     
         notification_acknowledgement = Google4R::Checkout::NotificationAcknowledgement.new(notification)
-        render :xml => notification_acknowledgement, :status => 200
+        render :xml => notification_acknowledgement.to_xml, :status => 200
       end
   
       private
