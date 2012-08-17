@@ -34,19 +34,21 @@ You have to place a file called 'frontend_configuration.rb' in the directory'tes
 
 The file should contain content similar to:
 
-    # Uncomment the following line if you are using Google Checkout in Great Britain
-    # and adjust it if you want to test google4r-checkout against any other (future)
-    # Google Checkout service.
+```ruby
+# Uncomment the following line if you are using Google Checkout in Great Britain
+# and adjust it if you want to test google4r-checkout against any other (future)
+# Google Checkout service.
     
-    # Money.default_currency = 'GBP'
-    
-    # The test configuration for the Google4R::Checkout::Frontend class.
-    FRONTEND_CONFIGURATION = 
-      { 
-        :merchant_id => '<your merchant id>', 
-        :merchant_key => '<your merchant key>',
-        :use_sandbox => true
-      }
+# Money.default_currency = 'GBP'
+
+# The test configuration for the Google4R::Checkout::Frontend class.
+FRONTEND_CONFIGURATION = 
+  { 
+    :merchant_id => '<your merchant id>', 
+    :merchant_key => '<your merchant key>',
+    :use_sandbox => true
+  }
+```
 
 ## Sending Commands to Google Checkout
 
@@ -54,28 +56,30 @@ To send commands to Google Checkout, use a Google4R::Checkout::Frontend object. 
 
 Here's an example:
 
-      # Create the Frontend from our configuration
-      frontend = Google4R::Checkout::Frontend.new(
-        :merchant_id => conf['merchant_id'],
-        :merchant_key => conf['merchant_key'],
-        :use_sandbox => conf['use_sandbox']
-      )
+```ruby
+# Create the Frontend from our configuration
+frontend = Google4R::Checkout::Frontend.new(
+  :merchant_id => conf['merchant_id'],
+  :merchant_key => conf['merchant_key'],
+  :use_sandbox => conf['use_sandbox']
+)
       
-      # Create a new checkout command (to place an order)
-      cmd = frontend.create_checkout_command
+# Create a new checkout command (to place an order)
+cmd = frontend.create_checkout_command
       
-      # Add an item to the command's shopping cart
-      cmd.shopping_cart.create_item do |item|
-        item.name = "2-liter bottle of Diet Pepsi"
-        item.quantity = 100
-        item.unit_price = Money.new(1.99, "USD")
-      end
+# Add an item to the command's shopping cart
+cmd.shopping_cart.create_item do |item|
+  item.name = "2-liter bottle of Diet Pepsi"
+  item.quantity = 100
+  item.unit_price = Money.new(1.99, "USD")
+end
       
-      # Send the command to Google and capture the HTTP response
-      response = cmd.send_to_google_checkout
+# Send the command to Google and capture the HTTP response
+response = cmd.send_to_google_checkout
       
-      # Redirect the user to Google Checkout to complete the transaction
-      redirect_to response.redirect_url
+# Redirect the user to Google Checkout to complete the transaction
+redirect_to response.redirect_url
+```
 
 For more information, see the Frontend class's RDocs and the Google Checkout API documentation.
 
@@ -87,51 +91,53 @@ It's a good idea to verify the HTTP authentication headers for incoming requests
 
 Here is an example of how one might do this in Rails:
 
-    class PaymentNotificationController < ApplicationController
-      before_filter :verify_merchant_credentials, :only => [:google]
+```ruby
+class PaymentNotificationController < ApplicationController
+  before_filter :verify_merchant_credentials, :only => [:google]
   
-      def google
-        frontend = Google4R::Checkout::Frontend.new(
-          :merchant_id => conf['merchant_id'],
-          :merchant_key => conf['merchant_key'],
-          :use_sandbox => conf['use_sandbox']
-        )
-        handler = frontend.create_notification_handler
-        
-        begin
-           notification = handler.handle(request.raw_post) # raw_post contains the XML
-        rescue Google4R::Checkout::UnknownNotificationType
-           # This can happen if Google adds new commands and Google4R has not been
-           # upgraded yet. It is not fatal.
-           logger.warn "Unknown notification type"
-           return render :text => 'ignoring unknown notification type', :status => 200
-        end
-        
-        case notification
-        when Google4R::Checkout::NewOrderNotification then
-          
-          # handle a NewOrderNotification
-          
-        when Google4R::Checkout::OrderStateChangeNotification then
-          
-          # handle an OrderStateChangeNotification
-          
-        else
-          return head :text => "I don't know how to handle a #{notification.class}", :status => 500
-        end
+  def google
+    frontend = Google4R::Checkout::Frontend.new(
+      :merchant_id => conf['merchant_id'],
+      :merchant_key => conf['merchant_key'],
+      :use_sandbox => conf['use_sandbox']
+    )
+    handler = frontend.create_notification_handler
     
-        notification_acknowledgement = Google4R::Checkout::NotificationAcknowledgement.new(notification)
-        render :xml => notification_acknowledgement.to_xml, :status => 200
-      end
-  
-      private
-      # make sure the request authentication headers use the right merchant_id and merchant_key
-      def verify_merchant_credentials
-        authenticate_or_request_with_http_basic("Google Checkout notification endpoint") do |merchant_id, merchant_key|
-          (conf['merchant_id'].to_s == merchant_id.to_s) and (conf['merchant_key'].to_s == merchant_key.to_s)
-        end
-      end
+    begin
+       notification = handler.handle(request.raw_post) # raw_post contains the XML
+    rescue Google4R::Checkout::UnknownNotificationType
+       # This can happen if Google adds new commands and Google4R has not been
+       # upgraded yet. It is not fatal.
+       logger.warn "Unknown notification type"
+       return render :text => 'ignoring unknown notification type', :status => 200
     end
+    
+    case notification
+    when Google4R::Checkout::NewOrderNotification then
+      
+      # handle a NewOrderNotification
+      
+    when Google4R::Checkout::OrderStateChangeNotification then
+      
+      # handle an OrderStateChangeNotification
+      
+    else
+      return head :text => "I don't know how to handle a #{notification.class}", :status => 500
+    end
+
+    notification_acknowledgement = Google4R::Checkout::NotificationAcknowledgement.new(notification)
+    render :xml => notification_acknowledgement.to_xml, :status => 200
+  end
+
+  private
+  # make sure the request authentication headers use the right merchant_id and merchant_key
+  def verify_merchant_credentials
+    authenticate_or_request_with_http_basic("Google Checkout notification endpoint") do |merchant_id, merchant_key|
+      (conf['merchant_id'].to_s == merchant_id.to_s) and (conf['merchant_key'].to_s == merchant_key.to_s)
+    end
+  end
+end
+```
 
 ## Dependencies
 
