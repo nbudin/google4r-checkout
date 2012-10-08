@@ -75,7 +75,15 @@ cmd.shopping_cart.create_item do |item|
 end
       
 # Send the command to Google and capture the HTTP response
-response = cmd.send_to_google_checkout
+begin
+  response = cmd.send_to_google_checkout
+rescue Net::HTTPServerError => e
+  # Sometimes Google Checkout is unavailable for internal reasons.
+  # Because of this, it's a good idea to catch Net::HTTPServerError
+  # and retry.
+  
+  response = cmd.send_to_google_checkout
+end
       
 # Redirect the user to Google Checkout to complete the transaction
 redirect_to response.redirect_url
