@@ -790,9 +790,13 @@ module Google4R #:nodoc:
 
 
     class NotificationDataTokenRequestCommand < Command
+      # The earliest time that an order could have been submitted to be
+      # included in the API response (Time)
+      attr_reader :start_time
 
-      def initialize(frontend)
+      def initialize(frontend, options = {})
         super frontend
+        @start_time if options.has_key?(:start_time) && options[:start_time].class != Time
       end
 
       def to_xml
