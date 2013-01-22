@@ -235,6 +235,14 @@ module Google4R #:nodoc:
       def create_notification_history_request_command(serial_number)
         return NotificationHistoryRequestCommand.new(self, serial_number)
       end
+
+      def create_notification_data_request_command(continue_token)
+        return NotificationDataRequestCommand.new(self, continue_token)
+      end
+
+      def create_notification_data_token_request_command(start_date)
+        return NotificationDataTokenRequestCommand.new(self, start_date)
+      end
     end
   end
 end
