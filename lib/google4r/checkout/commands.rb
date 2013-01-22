@@ -794,9 +794,9 @@ module Google4R #:nodoc:
       # included in the API response (Time)
       attr_reader :start_time
 
-      def initialize(frontend, start_time)
+      def initialize(frontend, start_time=nil)
         super frontend
-        raise 'start_time has to be of type Time' unless start_time.class == Time
+        raise 'start_time has to be of type Time' unless start_time.nil? || start_time.class == Time
         @start_time = start_time
       end
 

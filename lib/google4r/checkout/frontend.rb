@@ -240,7 +240,7 @@ module Google4R #:nodoc:
         return NotificationDataRequestCommand.new(self, continue_token)
       end
 
-      def create_notification_data_token_request_command(start_date)
+      def create_notification_data_token_request_command(start_date=nil)
         return NotificationDataTokenRequestCommand.new(self, start_date)
       end
     end
