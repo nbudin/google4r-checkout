@@ -796,7 +796,7 @@ module Google4R #:nodoc:
 
       def initialize(frontend, options = {})
         super frontend
-        @start_time if options.has_key?(:start_time) && options[:start_time].class != Time
+        @start_time = options[:start_time] if options.has_key?(:start_time)
       end
 
       def to_xml
