@@ -37,6 +37,7 @@ Bundler.setup(:default, :test)
 
 require 'mocha'
 require 'nokogiri'
+require 'pry'
 
 class Array
   # Returns the "power set" for this Array. This means that an array with all
