@@ -774,11 +774,6 @@ module Google4R #:nodoc:
             # ignore
           end
         end
-        unless result.kind_of?(Hash)
-          value = result
-          result = Hash.new()
-          result[:merchant_note] = value
-        end
         return result
       end
     end
