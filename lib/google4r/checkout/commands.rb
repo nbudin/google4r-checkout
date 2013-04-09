@@ -50,6 +50,7 @@ module Google4R #:nodoc:
       CHECKOUT_API_URL = 'api/checkout/v2/merchantCheckout/Merchant/%s'
       ORDER_PROCESSING_API_URL = 'api/checkout/v2/request/Merchant/%s'
       ORDER_REPORT_API_URL = 'api/checkout/v2/reports/Merchant/%s'
+      POLLING_API_URL = 'api/checkout/v2/reports/Merchant/%s'
 
       # Donations
       DONATE_CHECKOUT_API_URL = 'api/checkout/v2/merchantCheckout/Donations/%s'
@@ -108,6 +109,8 @@ module Google4R #:nodoc:
               CHECKOUT_API_URL
             elsif self.class == OrderReportCommand || self.class == NotificationHistoryRequestCommand then
               ORDER_REPORT_API_URL
+            elsif self.class == NotificationDataRequestCommand || self.class == NotificationDataTokenRequestCommand then
+              POLLING_API_URL
             else
               ORDER_PROCESSING_API_URL
             end
@@ -189,6 +192,33 @@ module Google4R #:nodoc:
                   end
                 end
                 { :notifications => notifications, :next_page_token => next_page_token }
+              when 'notification-data-token-response'
+                serial_number = xml_doc.elements['/notification-data-token-response'].attributes['serial-number']
+                continue_token = xml_doc.root.elements['continue-token/text()'].value
+                { :continue_token => continue_token, :serial_number => serial_number}
+              when 'notification-data-response'
+                serial_number = xml_doc.elements['/notification-data-response'].attributes['serial-number']
+                continue_token = xml_doc.root.elements['continue-token/text()'].value
+                has_more_notifications = xml_doc.root.elements['has-more-notifications/text()'].value
+                notifications = xml_doc.root.elements['notifications'].elements.map do |element|
+                  case element.name
+                    when 'new-order-notification'
+                      NewOrderNotification.create_from_element element, @frontend
+                    when 'risk-information-notification'
+                      RiskInformationNotification.create_from_element element, @frontend
+                    when 'order-state-change-notification'
+                      OrderStateChangeNotification.create_from_element element, @frontend
+                    when 'charge-amount-notification'
+                      ChargeAmountNotification.create_from_element element, @frontend
+                    when 'authorization-amount-notification'
+                      AuthorizationAmountNotification.create_from_element element, @frontend
+                    when 'refund-amount-notification'
+                      RefundAmountNotification.create_from_element element, @frontend
+                    when 'chargeback-amount-notification'
+                      ChargebackAmountNotification.create_from_element element, @frontend
+                  end
+                end
+                { :notifications => notifications, :continue_token => continue_token, :serial_number => serial_number, :has_more_notifications => has_more_notifications }
             else
                 raise "Unknown response:\n--\n#{xml_doc.to_s}\n--"
             end
@@ -739,6 +769,38 @@ module Google4R #:nodoc:
       
       def to_xml
         NotificationHistoryReportCommandXmlGenerator.new(self).generate
+      end
+    end
+
+
+    class NotificationDataRequestCommand < Command
+
+      attr_reader :continue_token
+
+      def initialize(frontend, continue_token)
+        super frontend
+
+        @continue_token = continue_token
+      end
+
+      def to_xml
+        NotificationDataRequestCommandXmlGenerator.new(self).generate
+      end
+    end
+
+
+    class NotificationDataTokenRequestCommand < Command
+      # The earliest time that an order could have been submitted to be
+      # included in the API response (Time)
+      attr_reader :start_time
+
+      def initialize(frontend, options = {})
+        super frontend
+        @start_time = options[:start_time] if options.has_key?(:start_time)
+      end
+
+      def to_xml
+        NotificationDataTokenRequestCommandXmlGenerator.new(self).generate
       end
     end
   end

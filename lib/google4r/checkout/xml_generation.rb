@@ -77,6 +77,8 @@ module Google4R #:nodoc:
         ResetItemsShippingInformationCommand => 'reset-items-shipping-information',
         OrderReportCommand => 'order-list-request',
         NotificationHistoryRequestCommand => 'notification-history-request',
+        NotificationDataTokenRequestCommand => 'notification-data-token-request',
+        NotificationDataRequestCommand => 'notification-data-request'
       }
       
       def initialize(command)
@@ -1066,6 +1068,44 @@ module Google4R #:nodoc:
         if command.next_page_token
           element = root.add_element('next-page-token')
           element.text = command.next_page_token
+        end
+
+      end
+    end
+
+    class NotificationDataRequestCommandXmlGenerator < CommandXmlGenerator
+
+      def initialize(command)
+        @command = command
+      end
+
+      protected
+
+      def process_command(command)
+        root = super
+
+        if command.continue_token
+          element = root.add_element('continue-token')
+          element.text = command.continue_token
+        end
+
+      end
+    end
+
+    class NotificationDataTokenRequestCommandXmlGenerator < CommandXmlGenerator
+
+      def initialize(command)
+        @command = command
+      end
+
+      protected
+
+      def process_command(command)
+        root = super
+
+        if command.start_time
+          element = root.add_element('start-time')
+          element.text = command.start_time.xmlschema
         end
 
       end

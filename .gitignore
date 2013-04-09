@@ -1,5 +1,13 @@
-.bundle/config
-Gemfile.lock
-pkg/*
 *.gem
 *.swp
+
+
+.bundle
+.idea/*
+Gemfile.lock
+pkg/*
+.idea/*
+build.log
+*~
+test/dummy/log/*
+test/dummy/.idea/*

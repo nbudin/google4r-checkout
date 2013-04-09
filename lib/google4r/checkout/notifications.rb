@@ -774,7 +774,6 @@ module Google4R #:nodoc:
             # ignore
           end
         end
-        
         return result
       end
     end
