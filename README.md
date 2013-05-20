@@ -1,3 +1,13 @@
+# THIS GEM IS SEEKING NEW MAINTAINERS!
+
+In case you haven't already heard, [Google is killing Google Checkout](https://support.google.com/checkout/sell/answer/3080449).
+
+I don't plan on maintaining this gem any longer.  I'd actually already transitioned [my app](http://www.journeysurveys.com) away from Google Checkout (and to a donation-supported business model).  However, @knimbler points out that [some people may still be interested in a gem to support Google's Wallet for Digital Goods API](https://github.com/nbudin/google4r-checkout/issues/17).
+
+If you are interested in such a gem, and think that google4r-checkout might make a good basis for it, and you are interested in maintaining the gem as a result, please contact me.  If I don't find a new maintainer by the time Google Checkout goes offline, I will simply retire this gem.
+
+&lt;3, Nat
+
 # google4r/checkout [![Build Status](https://secure.travis-ci.org/nbudin/google4r-checkout.png)](http://travis-ci.org/nbudin/google4r-checkout)
 
 google4r/checkout is a library to access the Google Checkout API.
