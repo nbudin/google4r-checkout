@@ -50,6 +50,17 @@ class Google4R::Checkout::RefundAmountNotificationTest < Test::Unit::TestCase
   <timestamp>2006-03-18T20:25:31</timestamp>
 </refund-amount-notification>
 }
+
+    @example2_xml = %q{
+<?xml version="1.0" encoding="UTF-8"?>
+<refund-amount-notification xmlns="http://checkout.google.com/schema/2"
+  serial-number="d669f8c7-6d75-4ad6-9278-d2fc997d15f2">
+  <google-order-number>841171949013218</google-order-number>
+  <latest-refund-amount currency="GBP">226.06</latest-refund-amount>
+  <total-refund-amount currency="GBP">226.06</total-refund-amount>
+  <timestamp>2006-03-18T20:25:31</timestamp>
+</refund-amount-notification>
+}
   end
   
   def test_create_from_element_works_correctly
@@ -63,5 +74,17 @@ class Google4R::Checkout::RefundAmountNotificationTest < Test::Unit::TestCase
     assert_equal(Money.new(22606, 'GBP'), notification.total_refund_amount)
     assert_equal(Money.new(22606, 'GBP'), notification.latest_refund_amount)
     assert_equal(Money.new(504, nil), notification.latest_fee_refund_amount)
+  end
+
+  def test_create_from_minmal_element_works_correctly
+    root = REXML::Document.new(@example2_xml).root
+    
+    notification = RefundAmountNotification.create_from_element(root, @frontend)
+
+    assert_equal 'd669f8c7-6d75-4ad6-9278-d2fc997d15f2', notification.serial_number
+    assert_equal '841171949013218', notification.google_order_number
+    assert_equal Time.parse('2006-03-18T20:25:31'), notification.timestamp
+    assert_equal(Money.new(22606, 'GBP'), notification.total_refund_amount)
+    assert_equal(Money.new(22606, 'GBP'), notification.latest_refund_amount)
   end
 end
