@@ -65,7 +65,7 @@ class Google4R::Checkout::CallbackHandlerTest < Test::Unit::TestCase
       
       expect = klass.stubs(:create_from_element)
       expect.times(1).returns(:foo)
-      expect.with { |element, frontend| element.name == tag_name and frontend == @frontend }
+      expect.with { |element, frontend| element.name == tag_name && frontend == @frontend }
       
       result = nil
       assert_nothing_raised {

@@ -310,7 +310,7 @@ module Google4R #:nodoc:
           self.process_digital_content(item_element, item.digital_content)
         end
         
-        if not (item.kind_of? Item::Subscription::RecurrentItem or item.subscription.nil?) then
+        if not (item.kind_of? Item::Subscription::RecurrentItem || item.subscription.nil?) then
           self.process_subscription(item_element, item.subscription)
         end
       end
@@ -661,7 +661,7 @@ module Google4R #:nodoc:
       end
 
       def process_tracking_data(parent, carrier, tracking_number)
-        if carrier and tracking_number then
+        if carrier && tracking_number then
           e1 = parent.add_element('tracking-data-list')
           e2 = e1.add_element('tracking-data')
           e2.add_element('carrier').text = carrier
@@ -761,7 +761,7 @@ module Google4R #:nodoc:
       end
 
       def process_tracking_data(parent, carrier, tracking_number)
-        if carrier and tracking_number then
+        if carrier && tracking_number then
           element = parent.add_element('tracking-data')
           element.add_element('carrier').text = carrier
           element.add_element('tracking-number').text = tracking_number
@@ -780,7 +780,7 @@ module Google4R #:nodoc:
       end
       
       def process_tracking_data(parent, carrier, tracking_number)
-        if carrier and tracking_number then
+        if carrier && tracking_number then
           element = parent.add_element('tracking-data')
           element.add_element('carrier').text = carrier
           element.add_element('tracking-number').text = tracking_number

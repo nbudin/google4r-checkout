@@ -57,6 +57,9 @@ module Google4R #:nodoc:
         "GoogleCheckoutError: message = '#{@message}', response code = '#{@response_code}', serial number = '#{@serial_number}'."
       end
     end
+    
+    # This is thrown when the seller's Google account is inactive
+    class InactiveAccountError < GoogleCheckoutError
 
     # ShoppingCart instances are containers for Item instances. You can add
     # Items to the class using #create_item (see the documentation of this
@@ -197,7 +200,7 @@ module Google4R #:nodoc:
       # Sets the price for one unit of goods described by this item. money must respond to
       # :cents and :currency as the Money class does.
       def unit_price=(money)
-        if not (money.respond_to?(:cents) and money.respond_to?(:currency)) then
+        if not (money.respond_to?(:cents) && money.respond_to?(:currency)) then
           raise "Invalid price - does not respond to :cents and :currency - #{money.inspect}."
         end
         
@@ -518,7 +521,7 @@ module Google4R #:nodoc:
           # Sets the maximum charge for this subscription payment. money must respond to
           # :cents and :currency as the Money class does.
           def maximum_charge=(money)
-            if not (money.respond_to?(:cents) and money.respond_to?(:currency)) then
+            if not (money.respond_to?(:cents) && money.respond_to?(:currency)) then
               raise "Invalid price - does not respond to :cents and :currency - #{money.inspect}."
             end
             
@@ -752,7 +755,7 @@ module Google4R #:nodoc:
       # Sets the cost for this shipping method. money must respond to :cents and :currency
       # as Money objects would.
       def price=(money)
-        if not (money.respond_to?(:cents) and money.respond_to?(:currency)) then
+        if not (money.respond_to?(:cents) && money.respond_to?(:currency)) then
           raise "Invalid cost - does not respond to :cents and :currency - #{money.inspect}."
         end
         
